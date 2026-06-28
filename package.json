@@ -3,8 +3,13 @@
   "version": "1.0.0",
   "description": "Mensajes periódicos que mezclan información familiar con contenido nuevo para investigar",
   "scripts": {
-    "test": "node test/message-generator.test.js",
-    "verify": "node scripts/verify-launch.js"
+    "test": "node test/message-generator.test.js && node test/app.test.js",
+    "verify": "node scripts/verify-launch.js",
+    "verify:browser": "node scripts/browser-verify.js"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "jsdom": "^29.1.1",
+    "puppeteer": "^25.2.1"
+  }
 }

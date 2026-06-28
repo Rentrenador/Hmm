@@ -50,10 +50,11 @@ function runTests() {
     }, /dailyActivity is required/);
   });
 
-  test('math teaching output contains familiar reference to activity', function () {
+  test('math teaching output contains familiar reference to activity only', function () {
     var msg = generateMixedMessage(MATH_ACTIVITY, { seed: 42 });
     assert.ok(hasFamiliarReference(msg, MATH_ACTIVITY), 'familiar section should reference activity');
     assert.ok(msg.familiar.includes(MATH_ACTIVITY), 'familiar should include exact activity text');
+    assert.ok(!/explicar conceptos|corregir ejercicios/i.test(msg.familiar), 'familiar should not add unstated teaching details');
   });
 
   test('math teaching output contains novel investigative element', function () {

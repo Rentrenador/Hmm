@@ -2,6 +2,7 @@
 
 var fs = require('fs');
 var path = require('path');
+var { spawnSync } = require('child_process');
 
 var SCRATCH = process.env.SCRATCH || path.join(
   process.env.LOCALAPPDATA || '',
@@ -12,8 +13,6 @@ var SCRATCH = process.env.SCRATCH || path.join(
 
 var ROOT = path.join(__dirname, '..');
 var INDEX = path.join(ROOT, 'index.html');
-var GENERATOR = path.join(ROOT, 'js', 'message-generator.js');
-var { generateMixedMessage } = require(GENERATOR);
 
 function ensureScratch() {
   if (!fs.existsSync(SCRATCH)) {
@@ -32,21 +31,20 @@ function verifyLandingPage() {
     { label: 'signup form', ok: /signup-form/i.test(html) },
     { label: 'generate control', ok: /generate-btn/i.test(html) },
     { label: 'simulate send control', ok: /simulate-btn/i.test(html) },
-    { label: 'loads real generator script', ok: /js\/message-generator\.js/i.test(html) }
+    { label: 'loads real generator script', ok: /js\/message-generator\.js/i.test(html) },
+    { label: 'loads real app glue script', ok: /js\/app\.js/i.test(html) }
   ];
-  var failed = checks.filter(function (c) { return !c.ok; });
-  return { checks: checks, failed: failed };
+  return { checks: checks, failed: checks.filter(function (c) { return !c.ok; }) };
 }
 
-function runFlow() {
-  var activity = 'impartir clases de matemáticas';
-  var contact = 'profesor@ejemplo.com';
-  var profile = { contact: contact, activity: activity };
-
-  var msg1 = generateMixedMessage(profile.activity, { seed: 1001, contactMedium: profile.contact });
-  var msg2 = generateMixedMessage(profile.activity, { seed: 1002, contactMedium: profile.contact });
-
-  return { profile: profile, msg1: msg1, msg2: msg2 };
+function runNode(scriptName) {
+  var scriptPath = path.join(__dirname, scriptName);
+  var result = spawnSync(process.execPath, [scriptPath], {
+    cwd: ROOT,
+    env: Object.assign({}, process.env, { SCRATCH: SCRATCH }),
+    encoding: 'utf8'
+  });
+  return result;
 }
 
 function main() {
@@ -60,7 +58,7 @@ function main() {
   log('=== CurioRutina launch verification ===');
   log('');
 
-  log('-- Landing page gating --');
+  log('-- Step 1: Landing page gating --');
   var landing = verifyLandingPage();
   landing.checks.forEach(function (c) {
     log((c.ok ? '[OK]' : '[FAIL]') + ' ' + c.label);
@@ -70,49 +68,35 @@ function main() {
   }
 
   log('');
-  log('-- Signup + generate flow (Node invocation of real generator) --');
-  var flow = runFlow();
-  log('Profile stored (simulated): ' + JSON.stringify(flow.profile));
-  log('');
-  log('--- Message sample #1 (post-signup) ---');
-  log('Subject: ' + flow.msg1.subject);
-  log(flow.msg1.fullText);
-  log('');
-  log('--- Message sample #2 (simulated periodic send) ---');
-  log('Subject: ' + flow.msg2.subject);
-  log(flow.msg2.fullText);
+  log('-- Step 2: Unit tests (generator + app glue) --');
+  var generatorTests = runNode(path.join('..', 'test', 'message-generator.test.js'));
+  if (generatorTests.stdout) log(generatorTests.stdout.trim());
+  if (generatorTests.stderr) log(generatorTests.stderr.trim());
+  if (generatorTests.status !== 0) process.exit(1);
 
-  var samplePath = path.join(SCRATCH, 'message-sample.txt');
-  var sampleContent = [
-    'CurioRutina — generated message sample',
-    'Profile: ' + JSON.stringify(flow.profile),
-    '',
-    '=== Message #1 (initial) ===',
-    'Subject: ' + flow.msg1.subject,
-    '',
-    flow.msg1.fullText,
-    '',
-    '=== Message #2 (periodic simulation) ===',
-    'Subject: ' + flow.msg2.subject,
-    '',
-    flow.msg2.fullText,
-    ''
-  ].join('\n');
-  fs.writeFileSync(samplePath, sampleContent, 'utf8');
+  var appTests = runNode(path.join('..', 'test', 'app.test.js'));
+  if (appTests.stdout) log(appTests.stdout.trim());
+  if (appTests.stderr) log(appTests.stderr.trim());
+  if (appTests.status !== 0) process.exit(1);
+
   log('');
-  log('Wrote ' + samplePath);
+  log('-- Step 3: Browser entry point (index.html signup + generate) --');
+  var browserVerify = runNode('browser-verify.js');
+  if (browserVerify.stdout) log(browserVerify.stdout.trim());
+  if (browserVerify.stderr) log(browserVerify.stderr.trim());
+  if (browserVerify.status !== 0) process.exit(1);
 
   var launchLogPath = path.join(SCRATCH, 'launch.log');
-  fs.writeFileSync(launchLogPath, logLines.join('\n') + '\n', 'utf8');
-  log('Wrote ' + launchLogPath);
-
-  var familiarOk = flow.msg1.familiar.includes(flow.profile.activity);
-  var novelOk = /investiga/i.test(flow.msg1.novel);
-  if (!familiarOk || !novelOk) {
-    console.error('Message structure validation failed');
+  var prefix = logLines.join('\n') + '\n';
+  var browserLog = fs.existsSync(launchLogPath) ? fs.readFileSync(launchLogPath, 'utf8') : '';
+  if (!browserLog.includes('Browser verification (real index.html entry point)')) {
+    console.error('Browser section missing from launch.log');
     process.exit(1);
   }
+  fs.writeFileSync(launchLogPath, prefix + browserLog, 'utf8');
+
   log('');
+  log('Wrote ' + launchLogPath);
   log('All verification checks passed.');
 }
 

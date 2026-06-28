@@ -83,16 +83,11 @@ function pickBySeed(items, seed) {
   return items[index];
 }
 
-function buildFamiliar(activity, domain) {
-  var intros = {
-    matematicas: 'Sabemos que tu día a día gira en torno a ' + activity + '. Esa rutina de explicar conceptos, corregir ejercicios y ver el "ajá" en los ojos de quien aprende es el hilo familiar de estos mensajes.',
-    cocina: 'Sabemos que cada día dedicas tiempo a ' + activity + '. Ese ritual de ingredientes, olores y platos compartidos es la parte familiar que conecta contigo.',
-    programacion: 'Sabemos que ' + activity + ' forma parte de tu rutina diaria. Resolver problemas, depurar y construir cosas que funcionan es tu terreno conocido.',
-    musica: 'Sabemos que ' + activity + ' marca tu día a día. Ese ritmo, esa práctica repetida, es la parte familiar de lo que compartimos contigo.',
-    deporte: 'Sabemos que ' + activity + ' es parte constante de tu rutina. El esfuerzo, la constancia y el cuerpo en movimiento son tu terreno familiar.',
-    general: 'Sabemos que en tu día a día haces esto: ' + activity + '. Esa rutina es la parte familiar de estos mensajes — lo que ya te pertenece.'
-  };
-  return intros[domain] || intros.general;
+function buildFamiliar(activity) {
+  return (
+    'Sabemos que en tu día a día haces esto: ' + activity +
+    '. Esa rutina es la parte familiar de estos mensajes — lo que ya te pertenece y conecta contigo.'
+  );
 }
 
 function buildNovel(activity, domain, seed) {
@@ -132,7 +127,7 @@ function generateMixedMessage(dailyActivity, options) {
   }
   var seed = typeof options.seed === 'number' ? options.seed : Date.now();
   var domain = detectDomain(activity);
-  var familiar = buildFamiliar(activity, domain);
+  var familiar = buildFamiliar(activity);
   var novel = buildNovel(activity, domain, seed);
 
   return {
