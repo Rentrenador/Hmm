@@ -781,7 +781,9 @@ function buildNovel(activity, domain, seed) {
     intro: intro,
     text: intro + '\n\n' + sourcesBlock,
     sources: topic.sources,
-    topicId: topic.id
+    topicId: topic.id,
+    topicHook: topic.hook,
+    topicPrompt: prompt
   };
 }
 
@@ -878,6 +880,8 @@ function generateMixedMessage(dailyActivity, options) {
     novelIntro: novelResult.intro,
     sources: novelResult.sources,
     topicId: novelResult.topicId,
+    topicHook: novelResult.topicHook,
+    topicPrompt: novelResult.topicPrompt,
     greeting: greeting,
     closing: closing,
     deliveryNote: deliveryNote,
@@ -902,13 +906,38 @@ if (typeof module !== 'undefined' && module.exports) {
     buildGreeting: buildGreeting,
     buildClosing: buildClosing,
     formatSources: formatSources,
-    hashString: hashString
+    hashString: hashString,
+    mergePersonalizedCopy: mergePersonalizedCopy
   };
+}
+
+function mergePersonalizedCopy(baseMessage, personalized) {
+  if (!personalized || !personalized.familiar) {
+    return baseMessage;
+  }
+  var familiar = String(personalized.familiar).trim();
+  var novelIntro = personalized.novelIntro != null
+    ? String(personalized.novelIntro).trim()
+    : baseMessage.novelIntro;
+  var subject = personalized.subject != null
+    ? String(personalized.subject).trim()
+    : baseMessage.subject;
+  var sourcesBlock = baseMessage.novel.slice(baseMessage.novelIntro.length).trim();
+  var novel = novelIntro + (sourcesBlock ? '\n\n' + sourcesBlock : '');
+  return Object.assign({}, baseMessage, {
+    familiar: familiar,
+    novelIntro: novelIntro,
+    novel: novel,
+    subject: subject,
+    fullText: baseMessage.greeting + '\n\n' + familiar + '\n\n' + novel + '\n\n' + baseMessage.closing,
+    personalizedByGrok: true
+  });
 }
 
 if (typeof window !== 'undefined') {
   window.MessageGenerator = {
     generateMixedMessage: generateMixedMessage,
-    detectDomain: detectDomain
+    detectDomain: detectDomain,
+    mergePersonalizedCopy: mergePersonalizedCopy
   };
 }

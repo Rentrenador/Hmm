@@ -9,6 +9,7 @@ var DIST = path.join(ROOT, 'dist');
 var FILES = [
   'index.html',
   'js/message-generator.js',
+  'js/grok-client.js',
   'js/app.js',
   'assets/earth-hero.jpg'
 ];

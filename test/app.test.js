@@ -58,17 +58,24 @@ function deps(ctx, extra) {
     storage: ctx.storage,
     window: ctx.window,
     generator: ctx.generator,
+    grokClient: null,
     seed: 42
   }, extra || {});
 }
 
-function runTests() {
+function tick() {
+  return new Promise(function (resolve) {
+    setImmediate(resolve);
+  });
+}
+
+async function runTests() {
   var passed = 0;
   var failed = 0;
 
-  function test(name, fn) {
+  async function test(name, fn) {
     try {
-      fn();
+      await fn();
       console.log('  ✓ ' + name);
       passed += 1;
     } catch (err) {
@@ -80,13 +87,13 @@ function runTests() {
 
   console.log('app glue tests\n');
 
-  test('handleSignupSubmit stores profile in localStorage', function () {
+  await test('handleSignupSubmit stores profile in localStorage', async function () {
     var ctx = buildDom();
     app.resetState();
     ctx.document.getElementById('contact').value = CONTACT;
     ctx.document.getElementById('activity').value = MATH_ACTIVITY;
 
-    var result = app.handleSignupSubmit({ preventDefault: function () {} }, deps(ctx));
+    var result = await app.handleSignupSubmit({ preventDefault: function () {} }, deps(ctx));
 
     var stored = app.loadProfile(ctx.storage);
     assert.deepStrictEqual(stored.contact, CONTACT);
@@ -95,26 +102,26 @@ function runTests() {
     assert.strictEqual(result.profile.contact, CONTACT);
   });
 
-  test('handleSignupSubmit renders three scientific source links', function () {
+  await test('handleSignupSubmit renders three scientific source links', async function () {
     var ctx = buildDom();
     app.resetState();
     ctx.document.getElementById('contact').value = CONTACT;
     ctx.document.getElementById('activity').value = MATH_ACTIVITY;
 
-    app.handleSignupSubmit({ preventDefault: function () {} }, deps(ctx));
+    await app.handleSignupSubmit({ preventDefault: function () {} }, deps(ctx));
 
     var previewHtml = ctx.document.getElementById('message-preview').innerHTML;
     assert.ok(previewHtml.includes('profundizar'));
     assert.ok((previewHtml.match(/leer/g) || []).length >= 3);
   });
 
-  test('handleSignupSubmit ack is honest about simulated delivery', function () {
+  await test('handleSignupSubmit ack is honest about simulated delivery', async function () {
     var ctx = buildDom();
     app.resetState();
     ctx.document.getElementById('contact').value = CONTACT;
     ctx.document.getElementById('activity').value = MATH_ACTIVITY;
 
-    app.handleSignupSubmit({ preventDefault: function () {} }, deps(ctx));
+    await app.handleSignupSubmit({ preventDefault: function () {} }, deps(ctx));
 
     var ack = ctx.document.getElementById('ack').textContent;
     assert.ok(/se simula aquí/i.test(ack));
@@ -122,13 +129,13 @@ function runTests() {
     assert.ok(ack.includes(MATH_ACTIVITY));
   });
 
-  test('handleSignupSubmit renders familiar + novel message preview', function () {
+  await test('handleSignupSubmit renders familiar + novel message preview', async function () {
     var ctx = buildDom();
     app.resetState();
     ctx.document.getElementById('contact').value = CONTACT;
     ctx.document.getElementById('activity').value = MATH_ACTIVITY;
 
-    var result = app.handleSignupSubmit({ preventDefault: function () {} }, deps(ctx));
+    var result = await app.handleSignupSubmit({ preventDefault: function () {} }, deps(ctx));
 
     var preview = ctx.document.getElementById('message-preview');
     assert.ok(!preview.classList.contains('hidden'));
@@ -143,7 +150,7 @@ function runTests() {
     assert.ok(/progres|cuenta|semana|avance|tirando|justo/i.test(result.message.familiar));
   });
 
-  test('simulateDelivery records simulated send without external delivery', function () {
+  await test('simulateDelivery records simulated send without external delivery', function () {
     var ctx = buildDom();
     app.resetState();
     var msg = generateMixedMessage(MATH_ACTIVITY, { seed: 7 });
@@ -154,20 +161,20 @@ function runTests() {
     assert.ok(ctx.document.getElementById('send-log').textContent.includes('Mensaje de la paloma #1'));
   });
 
-  test('handleGenerateClick uses stored profile and updates preview', function () {
+  await test('handleGenerateClick uses stored profile and updates preview', async function () {
     var ctx = buildDom();
     app.resetState();
     app.saveProfile({ contact: CONTACT, activity: MATH_ACTIVITY }, ctx.storage);
 
-    var first = app.handleGenerateClick(deps(ctx, { seed: 10 }));
-    var second = app.handleGenerateClick(deps(ctx, { seed: 11 }));
+    var first = await app.handleGenerateClick(deps(ctx, { seed: 10 }));
+    var second = await app.handleGenerateClick(deps(ctx, { seed: 11 }));
 
     assert.ok(first.message.familiar.includes('tus clases de matemáticas'));
     assert.notStrictEqual(first.message.novel, second.message.novel);
     assert.strictEqual(app.getSendCounter(), 2);
   });
 
-  test('initApp wires signup form submit through real handler', function () {
+  await test('initApp wires signup form submit through real handler', async function () {
     var ctx = buildDom();
     app.resetState();
     app.initApp(deps(ctx, { seed: 99 }));
@@ -178,13 +185,15 @@ function runTests() {
       new ctx.window.Event('submit', { bubbles: true, cancelable: true })
     );
 
+    await tick();
+
     var stored = app.loadProfile(ctx.storage);
     assert.strictEqual(stored.activity, MATH_ACTIVITY);
     assert.ok(!ctx.document.getElementById('demo-section').classList.contains('hidden'));
     assert.ok(ctx.document.getElementById('message-preview').textContent.includes('tus clases de matemáticas'));
   });
 
-  test('handleSimulateClick starts and stops periodic simulation', function () {
+  await test('handleSimulateClick starts and stops periodic simulation', async function () {
     var ctx = buildDom();
     app.resetState();
     app.saveProfile({ contact: CONTACT, activity: MATH_ACTIVITY }, ctx.storage);
@@ -197,15 +206,33 @@ function runTests() {
     };
     ctx.window.clearInterval = function () {};
 
-    var started = app.handleSimulateClick(deps(ctx, { intervalMs: 100 }));
+    var started = await app.handleSimulateClick(deps(ctx, { intervalMs: 100 }));
     assert.strictEqual(started.started, true);
     assert.strictEqual(timers.length, 1);
 
     timers[0].fn();
+    await tick();
     assert.ok(ctx.document.getElementById('send-log').textContent.includes('Mensaje de la paloma #1'));
 
-    var stopped = app.handleSimulateClick(deps(ctx));
+    var stopped = await app.handleSimulateClick(deps(ctx));
     assert.strictEqual(stopped.stopped, true);
+  });
+
+  await test('requestMessage falls back to local generator when Grok fails', async function () {
+    var ctx = buildDom();
+    app.resetState();
+    var profile = { contact: CONTACT, activity: MATH_ACTIVITY };
+    var grokClient = {
+      isAvailable: function () { return true; },
+      personalize: function () {
+        return Promise.reject(new Error('network down'));
+      }
+    };
+
+    var result = await app.requestMessage(profile, deps(ctx, { grokClient: grokClient, seed: 5 }));
+
+    assert.ok(result.message.familiar.includes('tus clases de matemáticas'));
+    assert.ok(result.message.sources.length === 3);
   });
 
   console.log('\n' + passed + ' passed, ' + failed + ' failed');

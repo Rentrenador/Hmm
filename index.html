@@ -9,8 +9,8 @@
   <style>
     :root {
       --space: #000000;
-      --surface: rgba(4, 8, 18, 0.38);
-      --surface-message: rgba(6, 12, 22, 0.42);
+      --surface: rgba(4, 8, 18, 0.22);
+      --surface-message: rgba(6, 12, 22, 0.26);
       --surface-border: rgba(120, 180, 255, 0.12);
       --accent: #4da3ff;
       --accent-glow: rgba(77, 163, 255, 0.35);
@@ -253,6 +253,31 @@
 
     .hidden { display: none !important; }
 
+    .paloma-loading {
+      margin-top: 1rem;
+      padding: 1rem 1.1rem;
+      border-radius: 10px;
+      background: rgba(77, 163, 255, 0.08);
+      border: 1px solid rgba(77, 163, 255, 0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: var(--muted);
+      font-size: 0.88rem;
+      text-align: center;
+      animation: palomaPulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes palomaPulse {
+      0%, 100% { opacity: 0.65; }
+      50% { opacity: 1; }
+    }
+
+    button:disabled {
+      opacity: 0.65;
+      cursor: wait;
+      filter: none;
+    }
+
     .ack {
       margin-top: 1rem;
       padding: 0.85rem 1rem;
@@ -282,29 +307,14 @@
       padding: 1.6rem 1.4rem 1.4rem;
       border-radius: calc(var(--radius) + 2px);
       background:
-        linear-gradient(145deg, rgba(12, 18, 30, 0.45) 0%, rgba(6, 10, 20, 0.38) 100%);
-      border: 1px solid rgba(255, 210, 140, 0.22);
-      backdrop-filter: blur(16px) saturate(1.08);
-      -webkit-backdrop-filter: blur(16px) saturate(1.08);
+        linear-gradient(145deg, rgba(12, 18, 30, 0.28) 0%, rgba(6, 10, 20, 0.22) 100%);
+      border: 1px solid rgba(255, 210, 140, 0.18);
+      backdrop-filter: blur(18px) saturate(1.05);
+      -webkit-backdrop-filter: blur(18px) saturate(1.05);
       box-shadow:
-        0 12px 40px rgba(0, 0, 0, 0.22),
-        inset 0 1px 0 rgba(255, 255, 255, 0.07);
+        0 12px 40px rgba(0, 0, 0, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
       overflow: hidden;
-    }
-
-    .paloma-delivery::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        repeating-linear-gradient(
-          -45deg,
-          transparent,
-          transparent 14px,
-          rgba(255, 184, 108, 0.03) 14px,
-          rgba(255, 184, 108, 0.03) 28px
-        );
-      pointer-events: none;
     }
 
     .paloma-seal {
@@ -363,10 +373,10 @@
       z-index: 1;
       padding: 1.1rem 1rem;
       border-radius: 10px;
-      background: rgba(0, 0, 0, 0.2);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.12);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
       line-height: 1.75;
     }
 
@@ -627,6 +637,7 @@
         </p>
         <button type="button" id="generate-btn">Recibir mensaje de la paloma</button>
         <button type="button" id="simulate-btn" class="secondary">Mensajes de la paloma periódicos</button>
+        <div id="paloma-loading" class="paloma-loading hidden" aria-live="polite">La paloma está escribiendo tu mensaje…</div>
         <div id="message-preview" class="message-preview hidden"></div>
         <div id="send-log" class="send-log"></div>
       </section>
@@ -641,6 +652,7 @@
   </div>
 
   <script src="js/message-generator.js"></script>
+  <script src="js/grok-client.js"></script>
   <script src="js/app.js"></script>
   <script>
     CurioRutinaApp.initApp();

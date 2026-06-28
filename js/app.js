@@ -8,6 +8,7 @@
   var STORAGE_KEY = 'curiorutina_profile';
   var sendCounter = 0;
   var simulateInterval = null;
+  var generationBusy = false;
 
   function getStorage(win) {
     return (win || global).localStorage;
@@ -16,6 +17,11 @@
   function getGenerator(win) {
     var w = win || global;
     return w.MessageGenerator;
+  }
+
+  function getGrokClient(win) {
+    var w = win || global;
+    return w.CurioGrokClient;
   }
 
   function loadProfile(storage) {
@@ -73,6 +79,22 @@
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+  }
+
+  function setLoading(doc, isLoading) {
+    doc = doc || global.document;
+    var loading = doc.getElementById('paloma-loading');
+    var generateBtn = doc.getElementById('generate-btn');
+    var simulateBtn = doc.getElementById('simulate-btn');
+    var submitBtn = doc.querySelector('#signup-form button[type="submit"]');
+
+    if (loading) {
+      loading.classList.toggle('hidden', !isLoading);
+    }
+    if (generateBtn) generateBtn.disabled = !!isLoading;
+    if (simulateBtn) simulateBtn.disabled = !!isLoading;
+    if (submitBtn) submitBtn.disabled = !!isLoading;
+    generationBusy = !!isLoading;
   }
 
   function renderMessage(msg, doc, options) {
@@ -141,7 +163,8 @@
       familiar: msg.familiar,
       novel: msg.novel,
       deliveredAt: new Date().toISOString(),
-      simulated: true
+      simulated: true,
+      personalizedByGrok: !!msg.personalizedByGrok
     };
     var log = doc.getElementById('send-log');
     var now = new Date();
@@ -156,19 +179,65 @@
     return record;
   }
 
-  function generateForProfile(profile, seed, generator) {
-    generator = generator || getGenerator();
-    return generator.generateMixedMessage(profile.activity, {
-      seed: seed,
+  function normalizePromise(value) {
+    if (value && typeof value.then === 'function') {
+      return value;
+    }
+    return Promise.resolve(value);
+  }
+
+  function generateForProfile(profile, seed, deps) {
+    deps = deps || {};
+    var generator = deps.generator || getGenerator(deps.window);
+    var grokClient = deps.grokClient !== undefined ? deps.grokClient : getGrokClient(deps.window);
+    var options = {
+      seed: seed != null ? seed : Date.now(),
       contactMedium: profile.contact
-    });
+    };
+
+    if (grokClient && grokClient.isAvailable && grokClient.isAvailable(deps.window)) {
+      return grokClient.personalize(profile, options, generator, {
+        window: deps.window || global,
+        fetch: deps.fetch
+      });
+    }
+
+    return generator.generateMixedMessage(profile.activity, options);
+  }
+
+  function deliverMessage(profile, msg, deps) {
+    var doc = deps.document || global.document;
+    var win = deps.window || global;
+    var deliveredAt = new Date();
+    renderMessage(msg, doc, { recipient: profile.contact, deliveredAt: deliveredAt });
+    var delivery = simulateDelivery(msg, profile.contact, doc, win);
+    return { profile: profile, message: msg, delivery: delivery };
+  }
+
+  function requestMessage(profile, deps, seed) {
+    deps = deps || {};
+    var doc = deps.document || global.document;
+    setLoading(doc, true);
+    return normalizePromise(generateForProfile(profile, seed, deps))
+      .then(function (msg) {
+        setLoading(doc, false);
+        return deliverMessage(profile, msg, deps);
+      })
+      .catch(function () {
+        setLoading(doc, false);
+        var generator = deps.generator || getGenerator(deps.window);
+        var fallback = generator.generateMixedMessage(profile.activity, {
+          seed: seed != null ? seed : Date.now(),
+          contactMedium: profile.contact
+        });
+        return deliverMessage(profile, fallback, deps);
+      });
   }
 
   function handleSignupSubmit(e, deps) {
     deps = deps || {};
     var doc = deps.document || global.document;
     var storage = deps.storage || getStorage(deps.window);
-    var generator = deps.generator || getGenerator(deps.window);
     e.preventDefault();
     var contact = doc.getElementById('contact').value.trim();
     var activity = doc.getElementById('activity').value.trim();
@@ -180,53 +249,42 @@
     saveProfile(profile, storage);
     showAck(buildAckMessage(profile), doc);
     doc.getElementById('demo-section').classList.remove('hidden');
-    var msg = generateForProfile(profile, deps.seed != null ? deps.seed : Date.now(), generator);
-    var deliveredAt = new Date();
-    renderMessage(msg, doc, { recipient: contact, deliveredAt: deliveredAt });
-    var delivery = simulateDelivery(msg, contact, doc, deps.window || global);
-    return { profile: profile, message: msg, delivery: delivery };
+    var seed = deps.seed != null ? deps.seed : Date.now();
+    return requestMessage(profile, deps, seed);
   }
 
   function handleGenerateClick(deps) {
     deps = deps || {};
-    var doc = deps.document || global.document;
     var storage = deps.storage || getStorage(deps.window);
-    var generator = deps.generator || getGenerator(deps.window);
     var profile = loadProfile(storage);
-    if (!profile) return null;
-    var msg = generateForProfile(profile, deps.seed != null ? deps.seed : Date.now(), generator);
-    var deliveredAt = new Date();
-    renderMessage(msg, doc, { recipient: profile.contact, deliveredAt: deliveredAt });
-    var delivery = simulateDelivery(msg, profile.contact, doc, deps.window || global);
-    return { profile: profile, message: msg, delivery: delivery };
+    if (!profile) return Promise.resolve(null);
+    var seed = deps.seed != null ? deps.seed : Date.now();
+    return requestMessage(profile, deps, seed);
   }
 
   function handleSimulateClick(deps) {
     deps = deps || {};
     var doc = deps.document || global.document;
     var storage = deps.storage || getStorage(deps.window);
-    var generator = deps.generator || getGenerator(deps.window);
     var win = deps.window || global;
     var profile = loadProfile(storage);
-    if (!profile) return null;
+    if (!profile) return Promise.resolve(null);
     var btn = doc.getElementById('simulate-btn');
     if (simulateInterval) {
       win.clearInterval(simulateInterval);
       simulateInterval = null;
       btn.textContent = 'Mensajes de la paloma periódicos';
-      return { stopped: true };
+      return Promise.resolve({ stopped: true });
     }
     btn.textContent = 'Detener mensajes de la paloma';
     var tick = 0;
     var intervalMs = deps.intervalMs || 5000;
     simulateInterval = win.setInterval(function () {
+      if (generationBusy) return;
       tick += 1;
-      var msg = generateForProfile(profile, Date.now() + tick, generator);
-      var deliveredAt = new Date();
-      renderMessage(msg, doc, { recipient: profile.contact, deliveredAt: deliveredAt });
-      simulateDelivery(msg, profile.contact, doc, win);
+      requestMessage(profile, deps, Date.now() + tick);
     }, intervalMs);
-    return { started: true, intervalMs: intervalMs };
+    return Promise.resolve({ started: true, intervalMs: intervalMs });
   }
 
   function initApp(deps) {
@@ -254,10 +312,15 @@
   function resetState() {
     sendCounter = 0;
     simulateInterval = null;
+    generationBusy = false;
   }
 
   function getSendCounter() {
     return sendCounter;
+  }
+
+  function isGenerationBusy() {
+    return generationBusy;
   }
 
   var api = {
@@ -270,15 +333,18 @@
     formatNovelParagraphs: formatNovelParagraphs,
     showAck: showAck,
     escapeHtml: escapeHtml,
+    setLoading: setLoading,
     renderMessage: renderMessage,
     simulateDelivery: simulateDelivery,
     generateForProfile: generateForProfile,
+    requestMessage: requestMessage,
     handleSignupSubmit: handleSignupSubmit,
     handleGenerateClick: handleGenerateClick,
     handleSimulateClick: handleSimulateClick,
     initApp: initApp,
     resetState: resetState,
-    getSendCounter: getSendCounter
+    getSendCounter: getSendCounter,
+    isGenerationBusy: isGenerationBusy
   };
 
   if (typeof module !== 'undefined' && module.exports) {
