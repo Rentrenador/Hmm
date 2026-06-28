@@ -56,20 +56,10 @@
         #000000;
     }
 
-    .earth-below {
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 50vh;
-      bottom: 0;
-      background: #000000;
-    }
-
     .stars {
       position: absolute;
       inset: 0;
-      /* Estrellas sobre el horizonte; la Tierra oscura queda debajo */
-      clip-path: polygon(0 0, 100% 0, 100% 48%, 0 48%);
+      clip-path: polygon(0 0, 100% 0, 100% 46%, 0 46%);
       background-image:
         radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.9) 0%, transparent 100%),
         radial-gradient(1px 1px at 25% 8%, rgba(255,255,255,0.7) 0%, transparent 100%),
@@ -106,108 +96,15 @@
         radial-gradient(0.5px 0.5px at 58% 44%, rgba(255,255,255,0.3) 0%, transparent 100%);
     }
 
-    /* Horizonte centrado en el 50% vertical de la pantalla */
-    .earth-container {
-      position: absolute;
-      left: 50%;
-      top: 50vh;
-      transform: translateX(-50%);
-      width: 260vmin;
-      height: 260vmin;
-    }
-
-    .earth-body {
+    /*
+     * Tierra: 42% de la circunferencia visible (151.2° de arco).
+     * Horizonte en el centro vertical (y=500 en viewBox 1000).
+     */
+    .earth-svg {
       position: absolute;
       inset: 0;
-      border-radius: 50%;
-      background:
-        radial-gradient(ellipse 110% 90% at 50% 0%,
-          #0a1018 0%,
-          #050810 8%,
-          #020406 18%,
-          #000000 35%,
-          #000000 100%);
-    }
-
-    /* Arco luminoso en el borde superior del disco = centro de la web */
-    .earth-limb {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      pointer-events: none;
-    }
-
-    .earth-limb::before {
-      content: '';
-      position: absolute;
-      left: -5%;
-      right: -5%;
-      top: -1px;
-      height: 6px;
-      border-radius: 50%;
-      background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(80, 160, 255, 0.5) 10%,
-        rgba(160, 220, 255, 0.95) 30%,
-        #ffffff 50%,
-        rgba(160, 220, 255, 0.95) 70%,
-        rgba(80, 160, 255, 0.5) 90%,
-        transparent 100%);
-      box-shadow:
-        0 0 12px 4px rgba(180, 220, 255, 0.95),
-        0 0 40px 12px rgba(100, 180, 255, 0.75),
-        0 0 90px 35px rgba(60, 140, 255, 0.45),
-        0 0 160px 60px rgba(40, 100, 220, 0.2);
-    }
-
-    .earth-limb::after {
-      content: '';
-      position: absolute;
-      left: 10%;
-      right: 10%;
-      top: 0;
-      height: 2px;
-      border-radius: 50%;
-      background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.85) 25%,
-        #ffffff 50%,
-        rgba(255, 255, 255, 0.85) 75%,
-        transparent 100%);
-    }
-
-    .atmosphere-haze {
-      position: absolute;
-      left: 50%;
-      top: 50vh;
-      transform: translate(-50%, -50%);
-      width: 90vw;
-      height: 12vh;
-      background: radial-gradient(ellipse 100% 100% at 50% 50%,
-        rgba(120, 190, 255, 0.35) 0%,
-        rgba(80, 150, 255, 0.15) 35%,
-        rgba(40, 100, 200, 0.05) 60%,
-        transparent 80%);
-      filter: blur(18px);
-    }
-
-    .horizon-curve {
-      position: absolute;
-      left: 50%;
-      top: 50vh;
-      transform: translate(-50%, -50%);
-      width: 110vw;
-      height: 4px;
-      border-radius: 50%;
-      background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(200, 230, 255, 0.4) 20%,
-        rgba(255, 255, 255, 0.9) 50%,
-        rgba(200, 230, 255, 0.4) 80%,
-        transparent 100%);
-      box-shadow:
-        0 0 8px 2px #fff,
-        0 0 30px 8px rgba(120, 200, 255, 0.8);
+      width: 100%;
+      height: 100%;
     }
 
     /* --- Content layer --- */
@@ -446,24 +343,83 @@
         font-size: 1.6rem;
         letter-spacing: 0.2em;
       }
-      .earth-container {
-        width: 300vmin;
-        height: 300vmin;
-      }
     }
   </style>
 </head>
 <body>
   <div class="space-scene" aria-hidden="true">
     <div class="space-above"></div>
-    <div class="earth-below"></div>
     <div class="stars"></div>
-    <div class="earth-container">
-      <div class="earth-body"></div>
-      <div class="earth-limb"></div>
-    </div>
-    <div class="horizon-curve"></div>
-    <div class="atmosphere-haze"></div>
+    <!--
+      Arco visible = 42% de 360° = 151.2° (±75.6° desde el cénit).
+      Centro (500,980), radio 480 → cénit en y=500 (centro de pantalla).
+    -->
+    <svg class="earth-svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="earthSurface" cx="50%" cy="0%" r="95%">
+          <stop offset="0%" stop-color="#141c28"/>
+          <stop offset="12%" stop-color="#080e16"/>
+          <stop offset="35%" stop-color="#020408"/>
+          <stop offset="100%" stop-color="#000000"/>
+        </radialGradient>
+        <linearGradient id="limbGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="rgba(80,160,255,0)"/>
+          <stop offset="15%" stop-color="rgba(120,190,255,0.7)"/>
+          <stop offset="35%" stop-color="rgba(210,235,255,0.95)"/>
+          <stop offset="50%" stop-color="#ffffff"/>
+          <stop offset="65%" stop-color="rgba(210,235,255,0.95)"/>
+          <stop offset="85%" stop-color="rgba(120,190,255,0.7)"/>
+          <stop offset="100%" stop-color="rgba(80,160,255,0)"/>
+        </linearGradient>
+        <filter id="limbGlow" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
+          <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+        <filter id="atmoHaze" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="14"/>
+        </filter>
+        <!-- Clip: solo el 42% del arco superior visible -->
+        <clipPath id="visibleArcClip">
+          <path d="M 36 862 A 480 480 0 0 1 964 862 L 1000 1000 L 0 1000 Z"/>
+        </clipPath>
+      </defs>
+
+      <!-- Disco terrestre (negro) recortado al arco visible -->
+      <circle cx="500" cy="980" r="480" fill="url(#earthSurface)" clip-path="url(#visibleArcClip)"/>
+      <circle cx="500" cy="980" r="480" fill="#000000" clip-path="url(#visibleArcClip)" opacity="0.85"/>
+
+      <!-- Resplandor atmosférico siguiendo la curva -->
+      <path
+        d="M 36 862 A 480 480 0 0 1 964 862"
+        fill="none"
+        stroke="rgba(100,180,255,0.35)"
+        stroke-width="28"
+        filter="url(#atmoHaze)"
+      />
+
+      <!-- Borde iluminado (limb) — 42% de circunferencia -->
+      <path
+        d="M 36 862 A 480 480 0 0 1 964 862"
+        fill="none"
+        stroke="url(#limbGradient)"
+        stroke-width="5"
+        stroke-linecap="round"
+        filter="url(#limbGlow)"
+      />
+
+      <!-- Núcleo brillante del horizonte -->
+      <path
+        d="M 36 862 A 480 480 0 0 1 964 862"
+        fill="none"
+        stroke="rgba(255,255,255,0.9)"
+        stroke-width="1.5"
+        stroke-linecap="round"
+      />
+    </svg>
   </div>
 
   <div class="content">
