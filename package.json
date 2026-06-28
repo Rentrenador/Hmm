@@ -1,0 +1,10 @@
+{
+  "name": "curiorutina",
+  "version": "1.0.0",
+  "description": "Mensajes periódicos que mezclan información familiar con contenido nuevo para investigar",
+  "scripts": {
+    "test": "node test/message-generator.test.js",
+    "verify": "node scripts/verify-launch.js"
+  },
+  "private": true
+}

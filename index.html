@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CurioRutina — Mensajes que mezclan lo familiar con lo nuevo</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --accent: #5b8def;
+      --accent-soft: #2a3f6b;
+      --text: #e8edf4;
+      --muted: #8b9cb3;
+      --familiar: #3d9a6a;
+      --novel: #c97b3d;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .hero {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 2rem;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+    .hero .tagline {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 520px;
+      margin: 0 auto 2rem;
+    }
+    .hero .hook {
+      display: inline-flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    .pill {
+      font-size: 0.8rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid #2a3548;
+    }
+    .pill.familiar { border-color: var(--familiar); color: #7dd3a8; }
+    .pill.novel { border-color: var(--novel); color: #f0b07a; }
+    main {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 0 1.5rem 3rem;
+    }
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      border: 1px solid #2a3548;
+    }
+    .card h2 {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid #2a3548;
+      background: var(--bg);
+      color: var(--text);
+      font: inherit;
+      margin-bottom: 1rem;
+    }
+    textarea { resize: vertical; min-height: 80px; }
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { filter: brightness(1.1); }
+    button.secondary {
+      background: transparent;
+      border: 1px solid var(--accent-soft);
+      color: var(--accent);
+      margin-top: 0.75rem;
+    }
+    .hidden { display: none !important; }
+    .ack {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      background: #1a2e24;
+      border: 1px solid var(--familiar);
+      font-size: 0.9rem;
+    }
+    .demo-section { margin-top: 1.5rem; }
+    .message-preview {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 8px;
+      background: var(--bg);
+      border: 1px solid #2a3548;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .message-preview .section-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    .message-preview .familiar-label { color: #7dd3a8; }
+    .message-preview .novel-label { color: #f0b07a; }
+    .send-log {
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      max-height: 120px;
+      overflow-y: auto;
+    }
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <h1>CurioRutina</h1>
+    <p class="tagline">
+      Recibe mensajes periódicos que mezclan <strong>lo que ya conoces</strong> — tu actividad del día a día —
+      con <strong>información nueva</strong> diseñada para captar tu atención e invitarte a investigar.
+    </p>
+    <div class="hook">
+      <span class="pill familiar">Parte familiar → tu rutina</span>
+      <span class="pill novel">Parte nueva → investiga</span>
+    </div>
+  </header>
+
+  <main>
+    <section id="signup-section" class="card">
+      <h2>Empieza aquí</h2>
+      <p style="font-size:0.9rem;color:var(--muted);margin-bottom:1rem;">
+        Déjanos cómo contactarte y qué haces cada día. Generaremos mensajes personalizados para ti.
+      </p>
+      <form id="signup-form">
+        <label for="contact">Medio de contacto (email)</label>
+        <input type="email" id="contact" name="contact" placeholder="tu@email.com" required>
+
+        <label for="activity">Algo que haces en tu día a día</label>
+        <textarea id="activity" name="activity" placeholder="Ej.: impartir clases de matemáticas" required></textarea>
+
+        <button type="submit">Inscribirme y recibir mensajes</button>
+      </form>
+      <div id="ack" class="ack hidden"></div>
+    </section>
+
+    <section id="demo-section" class="card demo-section hidden">
+      <h2>Tu mensaje personalizado</h2>
+      <p style="font-size:0.9rem;color:var(--muted);margin-bottom:1rem;">
+        Vista previa del mensaje que recibirías. La parte familiar conecta con tu rutina; la parte nueva te invita a investigar.
+      </p>
+      <button type="button" id="generate-btn">Generar mensaje ahora</button>
+      <button type="button" id="simulate-btn" class="secondary">Simular envío periódico</button>
+      <div id="message-preview" class="message-preview hidden"></div>
+      <div id="send-log" class="send-log"></div>
+    </section>
+  </main>
+
+  <footer>CurioRutina — familiar + nuevo, en tu bandeja de entrada</footer>
+
+  <script src="js/message-generator.js"></script>
+  <script>
+    var STORAGE_KEY = 'curiorutina_profile';
+    var sendCounter = 0;
+    var simulateInterval = null;
+
+    function loadProfile() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function saveProfile(profile) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+    }
+
+    function showAck(text) {
+      var ack = document.getElementById('ack');
+      ack.textContent = text;
+      ack.classList.remove('hidden');
+    }
+
+    function renderMessage(msg) {
+      var preview = document.getElementById('message-preview');
+      preview.innerHTML =
+        '<div class="section-label familiar-label">Asunto: ' + escapeHtml(msg.subject) + '</div>' +
+        '<div class="section-label familiar-label">Parte familiar</div>' +
+        '<div>' + escapeHtml(msg.familiar) + '</div>' +
+        '<div class="section-label novel-label" style="margin-top:1rem;">Parte nueva — investiga</div>' +
+        '<div>' + escapeHtml(msg.novel) + '</div>';
+      preview.classList.remove('hidden');
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function logSend(msg, medium) {
+      sendCounter += 1;
+      var log = document.getElementById('send-log');
+      var line = '[' + new Date().toLocaleTimeString() + '] Simulación #' + sendCounter +
+        ' → ' + medium + ' | ' + msg.subject;
+      log.textContent = line + '\n' + log.textContent;
+      console.log('[CurioRutina] Simulated send #' + sendCounter, { medium: medium, message: msg });
+    }
+
+    function generateForProfile(profile, seed) {
+      return window.MessageGenerator.generateMixedMessage(profile.activity, {
+        seed: seed,
+        contactMedium: profile.contact
+      });
+    }
+
+    document.getElementById('signup-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var contact = document.getElementById('contact').value.trim();
+      var activity = document.getElementById('activity').value.trim();
+      var profile = { contact: contact, activity: activity, signedUpAt: new Date().toISOString() };
+      saveProfile(profile);
+      showAck('¡Inscrito! Recibirás mensajes en ' + contact + ' sobre tu rutina: "' + activity + '".');
+      document.getElementById('demo-section').classList.remove('hidden');
+      var msg = generateForProfile(profile, Date.now());
+      renderMessage(msg);
+      logSend(msg, contact);
+    });
+
+    document.getElementById('generate-btn').addEventListener('click', function () {
+      var profile = loadProfile();
+      if (!profile) return;
+      var msg = generateForProfile(profile, Date.now());
+      renderMessage(msg);
+      logSend(msg, profile.contact);
+    });
+
+    document.getElementById('simulate-btn').addEventListener('click', function () {
+      var profile = loadProfile();
+      if (!profile) return;
+      var btn = document.getElementById('simulate-btn');
+      if (simulateInterval) {
+        clearInterval(simulateInterval);
+        simulateInterval = null;
+        btn.textContent = 'Simular envío periódico';
+        return;
+      }
+      btn.textContent = 'Detener simulación';
+      var tick = 0;
+      simulateInterval = setInterval(function () {
+        tick += 1;
+        var msg = generateForProfile(profile, Date.now() + tick);
+        renderMessage(msg);
+        logSend(msg, profile.contact);
+      }, 5000);
+    });
+
+    (function init() {
+      var profile = loadProfile();
+      if (profile) {
+        document.getElementById('contact').value = profile.contact;
+        document.getElementById('activity').value = profile.activity;
+        showAck('Perfil cargado: ' + profile.contact + ' — "' + profile.activity + '"');
+        document.getElementById('demo-section').classList.remove('hidden');
+      }
+    })();
+  </script>
+</body>
+</html>
