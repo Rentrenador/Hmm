@@ -41,16 +41,35 @@
       z-index: 0;
       pointer-events: none;
       overflow: hidden;
+      background: #000000;
+    }
+
+    .space-above {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 50vh;
       background:
-        radial-gradient(ellipse 120% 80% at 50% 110%, rgba(30, 80, 140, 0.08) 0%, transparent 55%),
-        radial-gradient(ellipse 100% 60% at 80% 20%, rgba(20, 40, 80, 0.15) 0%, transparent 50%),
-        radial-gradient(ellipse 80% 50% at 10% 30%, rgba(15, 30, 60, 0.1) 0%, transparent 45%),
+        radial-gradient(ellipse 90% 70% at 75% 25%, rgba(25, 50, 90, 0.2) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 50% at 15% 35%, rgba(20, 40, 70, 0.15) 0%, transparent 50%),
         #000000;
+    }
+
+    .earth-below {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50vh;
+      bottom: 0;
+      background: #000000;
     }
 
     .stars {
       position: absolute;
       inset: 0;
+      /* Estrellas sobre el horizonte; la Tierra oscura queda debajo */
+      clip-path: polygon(0 0, 100% 0, 100% 48%, 0 48%);
       background-image:
         radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.9) 0%, transparent 100%),
         radial-gradient(1px 1px at 25% 8%, rgba(255,255,255,0.7) 0%, transparent 100%),
@@ -87,13 +106,14 @@
         radial-gradient(0.5px 0.5px at 58% 44%, rgba(255,255,255,0.3) 0%, transparent 100%);
     }
 
+    /* Horizonte centrado en el 50% vertical de la pantalla */
     .earth-container {
       position: absolute;
       left: 50%;
-      bottom: -68vmin;
+      top: 50vh;
       transform: translateX(-50%);
-      width: 220vmin;
-      height: 220vmin;
+      width: 260vmin;
+      height: 260vmin;
     }
 
     .earth-body {
@@ -101,75 +121,93 @@
       inset: 0;
       border-radius: 50%;
       background:
-        radial-gradient(ellipse 100% 100% at 50% 42%,
-          #080c10 0%,
-          #030508 30%,
-          #000000 55%,
+        radial-gradient(ellipse 110% 90% at 50% 0%,
+          #0a1018 0%,
+          #050810 8%,
+          #020406 18%,
+          #000000 35%,
           #000000 100%);
-      box-shadow: inset 0 -40vmin 80vmin rgba(0, 0, 0, 0.9);
     }
 
+    /* Arco luminoso en el borde superior del disco = centro de la web */
     .earth-limb {
       position: absolute;
-      inset: -2px;
+      inset: 0;
       border-radius: 50%;
-      background: transparent;
-      box-shadow:
-        0 -6px 24px 4px rgba(126, 200, 255, 0.55),
-        0 -12px 60px 12px rgba(80, 160, 255, 0.3),
-        0 -24px 100px 30px rgba(60, 120, 220, 0.15);
+      pointer-events: none;
     }
 
     .earth-limb::before {
       content: '';
       position: absolute;
-      left: 5%;
-      right: 5%;
-      top: 8%;
-      height: 3px;
+      left: -5%;
+      right: -5%;
+      top: -1px;
+      height: 6px;
       border-radius: 50%;
       background: linear-gradient(90deg,
         transparent 0%,
-        rgba(100, 180, 255, 0.3) 15%,
-        rgba(200, 235, 255, 0.95) 35%,
+        rgba(80, 160, 255, 0.5) 10%,
+        rgba(160, 220, 255, 0.95) 30%,
         #ffffff 50%,
-        rgba(200, 235, 255, 0.95) 65%,
-        rgba(100, 180, 255, 0.3) 85%,
+        rgba(160, 220, 255, 0.95) 70%,
+        rgba(80, 160, 255, 0.5) 90%,
         transparent 100%);
-      filter: blur(0.5px);
       box-shadow:
-        0 0 20px 6px rgba(150, 210, 255, 0.7),
-        0 0 60px 20px rgba(80, 150, 255, 0.35);
+        0 0 12px 4px rgba(180, 220, 255, 0.95),
+        0 0 40px 12px rgba(100, 180, 255, 0.75),
+        0 0 90px 35px rgba(60, 140, 255, 0.45),
+        0 0 160px 60px rgba(40, 100, 220, 0.2);
     }
 
     .earth-limb::after {
       content: '';
       position: absolute;
-      left: 8%;
-      right: 8%;
-      top: 7.5%;
-      height: 1px;
+      left: 10%;
+      right: 10%;
+      top: 0;
+      height: 2px;
       border-radius: 50%;
       background: linear-gradient(90deg,
         transparent 0%,
-        rgba(255, 255, 255, 0.6) 30%,
+        rgba(255, 255, 255, 0.85) 25%,
         #ffffff 50%,
-        rgba(255, 255, 255, 0.6) 70%,
+        rgba(255, 255, 255, 0.85) 75%,
         transparent 100%);
     }
 
     .atmosphere-haze {
       position: absolute;
       left: 50%;
-      bottom: 8vmin;
-      transform: translateX(-50%);
-      width: 140vmin;
-      height: 20vmin;
-      background: radial-gradient(ellipse 100% 100% at 50% 100%,
-        rgba(100, 170, 255, 0.12) 0%,
-        rgba(60, 120, 200, 0.05) 40%,
-        transparent 70%);
-      filter: blur(20px);
+      top: 50vh;
+      transform: translate(-50%, -50%);
+      width: 90vw;
+      height: 12vh;
+      background: radial-gradient(ellipse 100% 100% at 50% 50%,
+        rgba(120, 190, 255, 0.35) 0%,
+        rgba(80, 150, 255, 0.15) 35%,
+        rgba(40, 100, 200, 0.05) 60%,
+        transparent 80%);
+      filter: blur(18px);
+    }
+
+    .horizon-curve {
+      position: absolute;
+      left: 50%;
+      top: 50vh;
+      transform: translate(-50%, -50%);
+      width: 110vw;
+      height: 4px;
+      border-radius: 50%;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(200, 230, 255, 0.4) 20%,
+        rgba(255, 255, 255, 0.9) 50%,
+        rgba(200, 230, 255, 0.4) 80%,
+        transparent 100%);
+      box-shadow:
+        0 0 8px 2px #fff,
+        0 0 30px 8px rgba(120, 200, 255, 0.8);
     }
 
     /* --- Content layer --- */
@@ -409,20 +447,22 @@
         letter-spacing: 0.2em;
       }
       .earth-container {
-        width: 280vmin;
-        height: 280vmin;
-        bottom: -75vmin;
+        width: 300vmin;
+        height: 300vmin;
       }
     }
   </style>
 </head>
 <body>
   <div class="space-scene" aria-hidden="true">
+    <div class="space-above"></div>
+    <div class="earth-below"></div>
     <div class="stars"></div>
     <div class="earth-container">
       <div class="earth-body"></div>
       <div class="earth-limb"></div>
     </div>
+    <div class="horizon-curve"></div>
     <div class="atmosphere-haze"></div>
   </div>
 
