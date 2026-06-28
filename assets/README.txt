@@ -1,7 +1,8 @@
 Earth background (earth-hero.jpg):
-NASA ISS030-E-010008 — Iberian Peninsula at Night, 4256×2832 px (original).
-Expedition 30, 4 Dec 2011. Public domain (NASA).
-Source: https://images-assets.nasa.gov/image/iss030e010008/iss030e010008~orig.jpg
+Composición estilo NASA: Europa de noche con luces urbanas, sol iluminando
+el borde atmosférico y estrellas en el espacio (4300×3200 px).
+Generada a partir de earth-reference.jpg (referencia Sopitas) con upscale
+Lanczos 5× + nitidez (scripts/enhance-earth-hero.py).
 
 Reference style inspiration:
 https://www.sopitas.com/wp-content/uploads/2017/06/tierra.jpg

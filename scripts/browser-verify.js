@@ -70,14 +70,17 @@ async function runBrowserFlow() {
     var ack = await page.$eval('#ack', function (el) { return el.textContent; });
     log('[check] ack after signup: ' + ack);
     assertContains(ack, ACTIVITY, 'ack activity');
-    assertContains(ack, 'simulan', 'ack simulation honesty');
+    assertContains(ack, 'simula', 'ack simulation honesty');
 
     await page.waitForSelector('#message-preview:not(.hidden)');
     var previewAfterSignup = await page.$eval('#message-preview', function (el) { return el.textContent; });
     log('[check] preview after signup length: ' + previewAfterSignup.length);
-    assertContains(previewAfterSignup, 'Parte familiar', 'preview familiar label');
-    assertContains(previewAfterSignup, 'Parte nueva', 'preview novel label');
-    assertContains(previewAfterSignup, ACTIVITY, 'preview activity');
+    assertContains(previewAfterSignup, 'Tu semana, en perspectiva', 'preview familiar label');
+    assertContains(previewAfterSignup, 'Algo nuevo para ti', 'preview novel label');
+    assertContains(previewAfterSignup, 'tus clases de matemáticas', 'preview derived activity phrase');
+    if (String(previewAfterSignup).includes(ACTIVITY)) {
+      throw new Error('preview should not contain literal signup activity: ' + ACTIVITY);
+    }
     assertMatch(previewAfterSignup, /investiga/i, 'preview investigative');
 
     var storedProfile = await page.evaluate(function () {
@@ -89,17 +92,17 @@ async function runBrowserFlow() {
 
     var sendLogAfterSignup = await page.$eval('#send-log', function (el) { return el.textContent; });
     log('[check] send log after signup: ' + sendLogAfterSignup.trim());
-    assertMatch(sendLogAfterSignup, /Simulación #1/, 'initial simulated send');
+    assertMatch(sendLogAfterSignup, /Mensaje de la paloma #1/, 'initial simulated send');
 
     await page.click('#generate-btn');
     await page.waitForFunction(function () {
-      return document.getElementById('send-log').textContent.indexOf('Simulación #2') !== -1;
+      return document.getElementById('send-log').textContent.indexOf('Mensaje de la paloma #2') !== -1;
     });
     var sendLogAfterGenerate = await page.$eval('#send-log', function (el) { return el.textContent; });
     log('[check] send log after generate: ' + sendLogAfterGenerate.trim());
 
     var previewAfterGenerate = await page.$eval('#message-preview', function (el) { return el.textContent; });
-    assertContains(previewAfterGenerate, ACTIVITY, 'generate preview activity');
+    assertContains(previewAfterGenerate, 'tus clases de matemáticas', 'generate preview derived phrase');
 
     var launchLogPath = path.join(SCRATCH, 'launch.log');
     var browserSection = logs.join('\n');

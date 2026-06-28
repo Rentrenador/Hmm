@@ -2,7 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>CurioRutina — Mensajes que mezclan lo familiar con lo nuevo</title>
   <style>
     :root {
@@ -22,6 +24,11 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
     html, body {
       min-height: 100%;
       background: var(--space);
@@ -32,6 +39,8 @@
       color: var(--text);
       line-height: 1.6;
       overflow-x: hidden;
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
     }
 
     /* --- Space background: stars + Earth limb --- */
@@ -44,16 +53,16 @@
       background: #000000;
     }
 
-    /* Fotografía NASA ISS030-E-010008 en resolución original (4256×2832) */
+    /* Europa de noche + sol en el horizonte (referencia Sopitas, 4300×3200) */
     .earth-hero {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: 16% 78%;
+      object-position: 50% 42%;
       display: block;
-      filter: contrast(1.1) saturate(1.15);
+      filter: contrast(1.05) saturate(1.08);
       transform: translateZ(0);
       backface-visibility: hidden;
     }
@@ -178,6 +187,7 @@
       background: rgba(0, 0, 0, 0.45);
       color: var(--text);
       font: inherit;
+      font-size: 16px;
       margin-bottom: 1.1rem;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
@@ -192,7 +202,8 @@
 
     button {
       width: 100%;
-      padding: 0.85rem;
+      padding: 0.85rem 1rem;
+      min-height: 48px;
       border: none;
       border-radius: 8px;
       background: linear-gradient(180deg, #5eb0ff 0%, #3d8ee6 100%);
@@ -202,14 +213,24 @@
       letter-spacing: 0.06em;
       text-transform: uppercase;
       font-size: 0.85rem;
+      line-height: 1.35;
       cursor: pointer;
       transition: filter 0.2s, box-shadow 0.2s;
       box-shadow: 0 4px 24px rgba(77, 163, 255, 0.25);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     button:hover {
       filter: brightness(1.12);
       box-shadow: 0 6px 32px rgba(77, 163, 255, 0.35);
+    }
+
+    @media (hover: none) {
+      button:active {
+        filter: brightness(1.08);
+        transform: scale(0.99);
+      }
     }
 
     button.secondary {
@@ -241,26 +262,180 @@
 
     .message-preview {
       margin-top: 1rem;
-      padding: 1.1rem;
-      border-radius: 8px;
-      background: rgba(0, 0, 0, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      font-size: 0.88rem;
-      white-space: pre-wrap;
+      padding: 0;
+      border: none;
+      background: transparent;
+      font-size: 0.9rem;
       word-break: break-word;
       font-weight: 300;
     }
 
-    .message-preview .section-label {
+    .paloma-delivery {
+      position: relative;
+      padding: 1.6rem 1.4rem 1.4rem;
+      border-radius: calc(var(--radius) + 2px);
+      background:
+        linear-gradient(145deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 12, 22, 0.98) 100%);
+      border: 1px solid rgba(255, 210, 140, 0.18);
+      box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+    }
+
+    .paloma-delivery::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(
+          -45deg,
+          transparent,
+          transparent 14px,
+          rgba(255, 184, 108, 0.03) 14px,
+          rgba(255, 184, 108, 0.03) 28px
+        );
+      pointer-events: none;
+    }
+
+    .paloma-seal {
+      position: absolute;
+      pointer-events: none;
+      top: 0.35rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.35rem;
+      line-height: 1;
+      filter: drop-shadow(0 4px 12px rgba(126, 200, 255, 0.35));
+    }
+
+    .paloma-tag {
+      position: relative;
+      z-index: 1;
+      display: inline-block;
+      margin: 0.5rem auto 1rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 6px;
+      background: rgba(255, 184, 108, 0.12);
+      border: 1px dashed rgba(255, 184, 108, 0.45);
+      color: #ffd9a8;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .paloma-meta,
+    .paloma-subject {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      margin-bottom: 0.75rem;
+    }
+
+    .paloma-subject {
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 1rem;
+      color: rgba(240, 244, 252, 0.8);
+    }
+
+    .paloma-letter {
+      position: relative;
+      z-index: 1;
+      padding: 1.1rem 1rem;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      line-height: 1.75;
+    }
+
+    .paloma-greeting {
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      color: var(--text);
+    }
+
+    .paloma-part + .paloma-part {
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .paloma-lead {
       font-size: 0.68rem;
       text-transform: uppercase;
       letter-spacing: 0.12em;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.55rem;
       font-weight: 500;
     }
 
-    .message-preview .familiar-label { color: var(--familiar); }
-    .message-preview .novel-label { color: var(--novel); }
+    .paloma-text,
+    .paloma-novel-text p {
+      margin: 0 0 0.85rem;
+      color: rgba(240, 244, 252, 0.92);
+    }
+
+    .paloma-novel-text p:last-child {
+      margin-bottom: 0;
+    }
+
+    .familiar-label { color: var(--familiar); }
+    .novel-label { color: var(--novel); }
+
+    .paloma-sources {
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 184, 108, 0.12);
+    }
+
+    .paloma-sources-lead {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 0.65rem;
+    }
+
+    .paloma-source-list {
+      margin: 0;
+      padding-left: 1.1rem;
+    }
+
+    .paloma-source-list li {
+      margin-bottom: 0.55rem;
+      font-size: 0.84rem;
+    }
+
+    .paloma-closing {
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      color: rgba(200, 215, 235, 0.85);
+      font-style: italic;
+    }
+
+    .paloma-reveal {
+      animation: palomaReveal 0.7s ease-out both;
+    }
+
+    @keyframes palomaReveal {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
 
     .message-preview a {
       color: var(--accent);
@@ -271,11 +446,11 @@
 
     .send-log {
       margin-top: 0.75rem;
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       color: var(--muted);
       max-height: 120px;
       overflow-y: auto;
-      font-family: "Cascadia Code", "Consolas", monospace;
+      line-height: 1.6;
     }
 
     footer {
@@ -289,10 +464,100 @@
       text-transform: uppercase;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
+      .earth-hero {
+        object-position: 50% 38%;
+      }
+
+      .hero {
+        padding: 2.5rem 1rem 1.75rem;
+      }
+
       .hero h1 {
-        font-size: 1.6rem;
-        letter-spacing: 0.2em;
+        font-size: 1.5rem;
+        letter-spacing: 0.18em;
+      }
+
+      .hero .tagline {
+        font-size: 0.95rem;
+        line-height: 1.65;
+        margin-bottom: 1.5rem;
+      }
+
+      .pill {
+        font-size: 0.7rem;
+        padding: 0.4rem 0.85rem;
+      }
+
+      main {
+        padding: 0 1rem 1.5rem;
+        max-width: 100%;
+      }
+
+      .card {
+        padding: 1.25rem;
+        border-radius: 12px;
+      }
+
+      .card h2 {
+        letter-spacing: 0.14em;
+      }
+
+      .card-desc {
+        font-size: 0.88rem;
+      }
+
+      button {
+        font-size: 0.78rem;
+        letter-spacing: 0.04em;
+      }
+
+      .paloma-delivery {
+        padding: 1.35rem 1rem 1.1rem;
+      }
+
+      .paloma-meta,
+      .paloma-subject {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.35rem;
+      }
+
+      .paloma-letter {
+        padding: 1rem 0.85rem;
+      }
+
+      .paloma-tag {
+        font-size: 0.65rem;
+        max-width: 100%;
+        line-height: 1.4;
+      }
+
+      .message-preview {
+        font-size: 0.86rem;
+      }
+
+      footer {
+        padding: 2rem 1rem calc(2rem + env(safe-area-inset-bottom));
+        font-size: 0.65rem;
+        letter-spacing: 0.1em;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .hero h1 {
+        font-size: 1.25rem;
+        letter-spacing: 0.12em;
+      }
+
+      .hook {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+      }
+
+      .pill {
+        text-align: center;
       }
     }
   </style>
@@ -302,11 +567,11 @@
     <img
       class="earth-hero"
       src="assets/earth-hero.jpg"
-      srcset="assets/earth-hero.jpg 4256w"
+      srcset="assets/earth-hero.jpg 4300w"
       sizes="100vw"
       alt=""
-      width="4256"
-      height="2832"
+      width="4300"
+      height="3200"
       decoding="async"
       fetchpriority="high"
     >
@@ -320,8 +585,8 @@
         con <strong>información nueva</strong> diseñada para captar tu atención e invitarte a investigar.
       </p>
       <div class="hook">
-        <span class="pill familiar">Parte familiar → tu rutina</span>
-        <span class="pill novel">Parte nueva → investiga</span>
+        <span class="pill familiar">Tu semana → en perspectiva</span>
+        <span class="pill novel">Lo nuevo → para explorar</span>
       </div>
     </header>
 
@@ -344,12 +609,12 @@
       </section>
 
       <section id="demo-section" class="card demo-section hidden">
-        <h2>Tu mensaje personalizado</h2>
+        <h2>Tu mensaje de la paloma</h2>
         <p class="card-desc">
-          Vista previa del mensaje que recibirías. La parte familiar conecta con tu rutina; la parte nueva te invita a investigar.
+          Cada mensaje de la paloma llega con detalle: primero un repaso realista y optimista de tu semana, luego una curiosidad para explorar con la mente fresca.
         </p>
-        <button type="button" id="generate-btn">Generar mensaje ahora</button>
-        <button type="button" id="simulate-btn" class="secondary">Simular envío periódico</button>
+        <button type="button" id="generate-btn">Recibir mensaje de la paloma</button>
+        <button type="button" id="simulate-btn" class="secondary">Mensajes de la paloma periódicos</button>
         <div id="message-preview" class="message-preview hidden"></div>
         <div id="send-log" class="send-log"></div>
       </section>

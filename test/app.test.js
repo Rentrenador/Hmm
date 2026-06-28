@@ -104,8 +104,8 @@ function runTests() {
     app.handleSignupSubmit({ preventDefault: function () {} }, deps(ctx));
 
     var previewHtml = ctx.document.getElementById('message-preview').innerHTML;
-    assert.ok(previewHtml.includes('Fuentes científicas'));
-    assert.ok((previewHtml.match(/investigar/g) || []).length >= 3);
+    assert.ok(previewHtml.includes('profundizar'));
+    assert.ok((previewHtml.match(/leer/g) || []).length >= 3);
   });
 
   test('handleSignupSubmit ack is honest about simulated delivery', function () {
@@ -117,7 +117,7 @@ function runTests() {
     app.handleSignupSubmit({ preventDefault: function () {} }, deps(ctx));
 
     var ack = ctx.document.getElementById('ack').textContent;
-    assert.ok(/simulan en esta página/i.test(ack));
+    assert.ok(/se simula aquí/i.test(ack));
     assert.ok(!/Recibirás mensajes en/i.test(ack));
     assert.ok(ack.includes(MATH_ACTIVITY));
   });
@@ -132,13 +132,15 @@ function runTests() {
 
     var preview = ctx.document.getElementById('message-preview');
     assert.ok(!preview.classList.contains('hidden'));
-    assert.ok(preview.textContent.includes('Parte familiar'));
-    assert.ok(preview.textContent.includes('Parte nueva'));
-    assert.ok(preview.textContent.includes(MATH_ACTIVITY));
-    assert.ok(/investiga|fuentes científicas/i.test(preview.textContent));
-    assert.ok(result.message.familiar.includes(MATH_ACTIVITY));
+    assert.ok(preview.textContent.includes('Tu semana, en perspectiva'));
+    assert.ok(preview.textContent.includes('Algo nuevo para ti'));
+    assert.ok(preview.textContent.includes('tus clases de matemáticas'));
+    assert.ok(/profundizar|lecturas/i.test(preview.textContent));
+    assert.ok(preview.textContent.includes('Para:'));
+    assert.ok(!result.message.familiar.includes(MATH_ACTIVITY));
+    assert.ok(result.message.familiar.includes('tus clases de matemáticas'));
     assert.ok(result.message.sources.length === 3);
-    assert.ok(/repetir|automático|déjà vu|monoton|otra vez/i.test(result.message.familiar));
+    assert.ok(/progres|cuenta|semana|avance|tirando|justo/i.test(result.message.familiar));
   });
 
   test('simulateDelivery records simulated send without external delivery', function () {
@@ -149,7 +151,7 @@ function runTests() {
 
     assert.strictEqual(record.simulated, true);
     assert.strictEqual(record.medium, CONTACT);
-    assert.ok(ctx.document.getElementById('send-log').textContent.includes('Simulación #1'));
+    assert.ok(ctx.document.getElementById('send-log').textContent.includes('Mensaje de la paloma #1'));
   });
 
   test('handleGenerateClick uses stored profile and updates preview', function () {
@@ -160,7 +162,7 @@ function runTests() {
     var first = app.handleGenerateClick(deps(ctx, { seed: 10 }));
     var second = app.handleGenerateClick(deps(ctx, { seed: 11 }));
 
-    assert.ok(first.message.familiar.includes(MATH_ACTIVITY));
+    assert.ok(first.message.familiar.includes('tus clases de matemáticas'));
     assert.notStrictEqual(first.message.novel, second.message.novel);
     assert.strictEqual(app.getSendCounter(), 2);
   });
@@ -179,7 +181,7 @@ function runTests() {
     var stored = app.loadProfile(ctx.storage);
     assert.strictEqual(stored.activity, MATH_ACTIVITY);
     assert.ok(!ctx.document.getElementById('demo-section').classList.contains('hidden'));
-    assert.ok(ctx.document.getElementById('message-preview').textContent.includes(MATH_ACTIVITY));
+    assert.ok(ctx.document.getElementById('message-preview').textContent.includes('tus clases de matemáticas'));
   });
 
   test('handleSimulateClick starts and stops periodic simulation', function () {
@@ -200,7 +202,7 @@ function runTests() {
     assert.strictEqual(timers.length, 1);
 
     timers[0].fn();
-    assert.ok(ctx.document.getElementById('send-log').textContent.includes('Simulación #1'));
+    assert.ok(ctx.document.getElementById('send-log').textContent.includes('Mensaje de la paloma #1'));
 
     var stopped = app.handleSimulateClick(deps(ctx));
     assert.strictEqual(stopped.stopped, true);

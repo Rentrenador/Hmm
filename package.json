@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Mensajes periódicos que mezclan información familiar con contenido nuevo para investigar",
   "scripts": {
+    "build": "node scripts/build-dist.js",
     "test": "node test/message-generator.test.js && node test/app.test.js",
     "verify": "node scripts/verify-launch.js",
     "verify:browser": "node scripts/browser-verify.js"
