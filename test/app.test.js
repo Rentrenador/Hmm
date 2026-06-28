@@ -95,6 +95,19 @@ function runTests() {
     assert.strictEqual(result.profile.contact, CONTACT);
   });
 
+  test('handleSignupSubmit renders three scientific source links', function () {
+    var ctx = buildDom();
+    app.resetState();
+    ctx.document.getElementById('contact').value = CONTACT;
+    ctx.document.getElementById('activity').value = MATH_ACTIVITY;
+
+    app.handleSignupSubmit({ preventDefault: function () {} }, deps(ctx));
+
+    var previewHtml = ctx.document.getElementById('message-preview').innerHTML;
+    assert.ok(previewHtml.includes('Fuentes científicas'));
+    assert.ok((previewHtml.match(/investigar/g) || []).length >= 3);
+  });
+
   test('handleSignupSubmit ack is honest about simulated delivery', function () {
     var ctx = buildDom();
     app.resetState();
@@ -122,9 +135,10 @@ function runTests() {
     assert.ok(preview.textContent.includes('Parte familiar'));
     assert.ok(preview.textContent.includes('Parte nueva'));
     assert.ok(preview.textContent.includes(MATH_ACTIVITY));
-    assert.ok(/investiga/i.test(preview.textContent));
+    assert.ok(/investiga|fuentes científicas/i.test(preview.textContent));
     assert.ok(result.message.familiar.includes(MATH_ACTIVITY));
-    assert.ok(/investiga/i.test(result.message.novel));
+    assert.ok(result.message.sources.length === 3);
+    assert.ok(/repetir|automático|déjà vu|monoton|otra vez/i.test(result.message.familiar));
   });
 
   test('simulateDelivery records simulated send without external delivery', function () {

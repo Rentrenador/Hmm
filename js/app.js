@@ -60,12 +60,24 @@
   function renderMessage(msg, doc) {
     doc = doc || global.document;
     var preview = doc.getElementById('message-preview');
+    var sourcesHtml = '';
+    if (msg.sources && msg.sources.length) {
+      sourcesHtml =
+        '<div class="section-label novel-label" style="margin-top:1rem;">Fuentes científicas</div>' +
+        '<ul style="margin:0.5rem 0 0 1rem;padding:0;">' +
+        msg.sources.map(function (src) {
+          return '<li style="margin-bottom:0.5rem;"><strong>' + escapeHtml(src.label) + '</strong>: ' +
+            escapeHtml(src.title) + ' — <a href="' + escapeHtml(src.url) + '" target="_blank" rel="noopener" style="color:#5b8def;">investigar</a></li>';
+        }).join('') +
+        '</ul>';
+    }
     preview.innerHTML =
       '<div class="section-label familiar-label">Asunto: ' + escapeHtml(msg.subject) + '</div>' +
-      '<div class="section-label familiar-label">Parte familiar</div>' +
+      '<div class="section-label familiar-label">Parte familiar — tu rutina repetitiva</div>' +
       '<div>' + escapeHtml(msg.familiar) + '</div>' +
       '<div class="section-label novel-label" style="margin-top:1rem;">Parte nueva — investiga</div>' +
-      '<div>' + escapeHtml(msg.novel) + '</div>';
+      '<div>' + escapeHtml(msg.novel) + '</div>' +
+      sourcesHtml;
     preview.classList.remove('hidden');
     return preview.textContent;
   }
