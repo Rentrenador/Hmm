@@ -9,7 +9,8 @@
   <style>
     :root {
       --space: #000000;
-      --surface: rgba(6, 10, 18, 0.84);
+      --surface: rgba(4, 8, 18, 0.38);
+      --surface-message: rgba(6, 12, 22, 0.42);
       --surface-border: rgba(120, 180, 255, 0.12);
       --accent: #4da3ff;
       --accent-glow: rgba(77, 163, 255, 0.35);
@@ -89,7 +90,9 @@
       letter-spacing: 0.35em;
       text-transform: uppercase;
       margin-bottom: 1rem;
-      text-shadow: 0 0 40px rgba(126, 200, 255, 0.2);
+      text-shadow:
+        0 0 40px rgba(126, 200, 255, 0.25),
+        0 2px 12px rgba(0, 0, 0, 0.55);
     }
 
     .hero .tagline {
@@ -146,12 +149,12 @@
       background: var(--surface);
       border-radius: var(--radius);
       padding: 1.75rem;
-      border: 1px solid var(--surface-border);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(120, 180, 255, 0.18);
+      backdrop-filter: blur(14px) saturate(1.1);
+      -webkit-backdrop-filter: blur(14px) saturate(1.1);
       box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        0 8px 32px rgba(0, 0, 0, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
 
     .card h2 {
@@ -184,7 +187,9 @@
       padding: 0.75rem 1rem;
       border-radius: 8px;
       border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(0, 0, 0, 0.45);
+      background: rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       color: var(--text);
       font: inherit;
       font-size: 16px;
@@ -252,7 +257,9 @@
       margin-top: 1rem;
       padding: 0.85rem 1rem;
       border-radius: 8px;
-      background: rgba(94, 228, 160, 0.06);
+      background: rgba(94, 228, 160, 0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border: 1px solid rgba(94, 228, 160, 0.25);
       font-size: 0.9rem;
       font-weight: 300;
@@ -275,11 +282,13 @@
       padding: 1.6rem 1.4rem 1.4rem;
       border-radius: calc(var(--radius) + 2px);
       background:
-        linear-gradient(145deg, rgba(18, 24, 38, 0.95) 0%, rgba(8, 12, 22, 0.98) 100%);
-      border: 1px solid rgba(255, 210, 140, 0.18);
+        linear-gradient(145deg, rgba(12, 18, 30, 0.45) 0%, rgba(6, 10, 20, 0.38) 100%);
+      border: 1px solid rgba(255, 210, 140, 0.22);
+      backdrop-filter: blur(16px) saturate(1.08);
+      -webkit-backdrop-filter: blur(16px) saturate(1.08);
       box-shadow:
-        0 12px 40px rgba(0, 0, 0, 0.45),
-        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        0 12px 40px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07);
       overflow: hidden;
     }
 
@@ -354,8 +363,10 @@
       z-index: 1;
       padding: 1.1rem 1rem;
       border-radius: 10px;
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       line-height: 1.75;
     }
 
@@ -382,7 +393,8 @@
     .paloma-text,
     .paloma-novel-text p {
       margin: 0 0 0.85rem;
-      color: rgba(240, 244, 252, 0.92);
+      color: rgba(240, 244, 252, 0.95);
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
     }
 
     .paloma-novel-text p:last-child {
