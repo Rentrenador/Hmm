@@ -44,22 +44,10 @@
       background: #000000;
     }
 
-    .space-above {
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      height: 50vh;
-      background:
-        radial-gradient(ellipse 90% 70% at 75% 25%, rgba(25, 50, 90, 0.2) 0%, transparent 55%),
-        radial-gradient(ellipse 70% 50% at 15% 35%, rgba(20, 40, 70, 0.15) 0%, transparent 50%),
-        #000000;
-    }
-
     .stars {
       position: absolute;
       inset: 0;
-      clip-path: polygon(0 0, 100% 0, 100% 46%, 0 46%);
+      z-index: 3;
       background-image:
         radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.9) 0%, transparent 100%),
         radial-gradient(1px 1px at 25% 8%, rgba(255,255,255,0.7) 0%, transparent 100%),
@@ -97,14 +85,64 @@
     }
 
     /*
-     * Tierra: 42% de la circunferencia visible (151.2° de arco).
-     * Horizonte en el centro vertical (y=500 en viewBox 1000).
+     * Tierra real NASA — centro del disco en esquina inferior izquierda.
+     * Radio 120vmax → ~42% del arco visible en pantalla.
      */
-    .earth-svg {
+    .earth-disk {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 240vmax;
+      height: 240vmax;
+      transform: translate(-50%, 50%);
+      border-radius: 50%;
+      background: url('assets/earth-night.jpg') center center / cover no-repeat;
+      filter: brightness(0.18) contrast(1.25) saturate(0.6);
+      z-index: 1;
+    }
+
+    .earth-disk::after {
+      content: '';
       position: absolute;
       inset: 0;
-      width: 100%;
-      height: 100%;
+      border-radius: 50%;
+      box-shadow: inset 0 0 120px 60px rgba(0, 0, 0, 0.85);
+    }
+
+    /* Fotografía real del limb atmosférico NASA (ISS001-421-24) en el borde */
+    .earth-atmosphere {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 240vmax;
+      height: 240vmax;
+      transform: translate(-50%, 50%);
+      border-radius: 50%;
+      background: url('assets/earth-limb-nasa.jpg') center 35% / cover no-repeat;
+      -webkit-mask-image: radial-gradient(
+        circle,
+        transparent 0,
+        transparent 46%,
+        rgba(0, 0, 0, 0.4) 47.5%,
+        #000 49%,
+        #000 52%,
+        rgba(0, 0, 0, 0.35) 53.5%,
+        transparent 55%
+      );
+      mask-image: radial-gradient(
+        circle,
+        transparent 0,
+        transparent 46%,
+        rgba(0, 0, 0, 0.4) 47.5%,
+        #000 49%,
+        #000 52%,
+        rgba(0, 0, 0, 0.35) 53.5%,
+        transparent 55%
+      );
+      mix-blend-mode: screen;
+      opacity: 0.92;
+      z-index: 2;
+      pointer-events: none;
     }
 
     /* --- Content layer --- */
@@ -348,78 +386,9 @@
 </head>
 <body>
   <div class="space-scene" aria-hidden="true">
-    <div class="space-above"></div>
+    <div class="earth-disk" role="img" aria-label="Tierra de noche, NASA Black Marble"></div>
+    <div class="earth-atmosphere" role="img" aria-label="Borde atmosférico de la Tierra, NASA ISS001-421-24"></div>
     <div class="stars"></div>
-    <!--
-      Arco visible = 42% de 360° = 151.2° (±75.6° desde el cénit).
-      Centro (500,980), radio 480 → cénit en y=500 (centro de pantalla).
-    -->
-    <svg class="earth-svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="earthSurface" cx="50%" cy="0%" r="95%">
-          <stop offset="0%" stop-color="#141c28"/>
-          <stop offset="12%" stop-color="#080e16"/>
-          <stop offset="35%" stop-color="#020408"/>
-          <stop offset="100%" stop-color="#000000"/>
-        </radialGradient>
-        <linearGradient id="limbGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="rgba(80,160,255,0)"/>
-          <stop offset="15%" stop-color="rgba(120,190,255,0.7)"/>
-          <stop offset="35%" stop-color="rgba(210,235,255,0.95)"/>
-          <stop offset="50%" stop-color="#ffffff"/>
-          <stop offset="65%" stop-color="rgba(210,235,255,0.95)"/>
-          <stop offset="85%" stop-color="rgba(120,190,255,0.7)"/>
-          <stop offset="100%" stop-color="rgba(80,160,255,0)"/>
-        </linearGradient>
-        <filter id="limbGlow" x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
-          <feMerge>
-            <feMergeNode in="blur"/>
-            <feMergeNode in="blur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-        <filter id="atmoHaze" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="14"/>
-        </filter>
-        <!-- Clip: solo el 42% del arco superior visible -->
-        <clipPath id="visibleArcClip">
-          <path d="M 36 862 A 480 480 0 0 1 964 862 L 1000 1000 L 0 1000 Z"/>
-        </clipPath>
-      </defs>
-
-      <!-- Disco terrestre (negro) recortado al arco visible -->
-      <circle cx="500" cy="980" r="480" fill="url(#earthSurface)" clip-path="url(#visibleArcClip)"/>
-      <circle cx="500" cy="980" r="480" fill="#000000" clip-path="url(#visibleArcClip)" opacity="0.85"/>
-
-      <!-- Resplandor atmosférico siguiendo la curva -->
-      <path
-        d="M 36 862 A 480 480 0 0 1 964 862"
-        fill="none"
-        stroke="rgba(100,180,255,0.35)"
-        stroke-width="28"
-        filter="url(#atmoHaze)"
-      />
-
-      <!-- Borde iluminado (limb) — 42% de circunferencia -->
-      <path
-        d="M 36 862 A 480 480 0 0 1 964 862"
-        fill="none"
-        stroke="url(#limbGradient)"
-        stroke-width="5"
-        stroke-linecap="round"
-        filter="url(#limbGlow)"
-      />
-
-      <!-- Núcleo brillante del horizonte -->
-      <path
-        d="M 36 862 A 480 480 0 0 1 964 862"
-        fill="none"
-        stroke="rgba(255,255,255,0.9)"
-        stroke-width="1.5"
-        stroke-linecap="round"
-      />
-    </svg>
   </div>
 
   <div class="content">
@@ -465,7 +434,12 @@
       </section>
     </main>
 
-    <footer>CurioRutina — familiar + nuevo, en tu bandeja de entrada</footer>
+    <footer>
+      CurioRutina — familiar + nuevo, en tu bandeja de entrada<br>
+      <span style="opacity:0.6;font-size:0.65rem;letter-spacing:0.08em;text-transform:none;">
+        Imágenes: NASA Earth Observatory — Black Marble / ISS001-421-24
+      </span>
+    </footer>
   </div>
 
   <script src="js/message-generator.js"></script>
