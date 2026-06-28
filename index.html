@@ -44,15 +44,18 @@
       background: #000000;
     }
 
-    /* Fotografía real NASA/ISS: curva, borde azul iluminado, universo con estrellas */
+    /* Fotografía NASA ISS030-E-010008 en resolución original (4256×2832) */
     .earth-hero {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: 12% 88%;
+      object-position: 16% 78%;
       display: block;
+      filter: contrast(1.1) saturate(1.15);
+      transform: translateZ(0);
+      backface-visibility: hidden;
     }
 
     /* --- Content layer --- */
@@ -299,10 +302,13 @@
     <img
       class="earth-hero"
       src="assets/earth-hero.jpg"
+      srcset="assets/earth-hero.jpg 4256w"
+      sizes="100vw"
       alt=""
-      width="860"
-      height="640"
+      width="4256"
+      height="2832"
       decoding="async"
+      fetchpriority="high"
     >
   </div>
 
@@ -352,7 +358,7 @@
     <footer>
       CurioRutina — familiar + nuevo, en tu bandeja de entrada<br>
       <span style="opacity:0.6;font-size:0.65rem;letter-spacing:0.08em;text-transform:none;">
-        Imagen: NASA / Estación Espacial Internacional — Tierra de noche con borde iluminado
+        Imagen: NASA ISS030-E-010008 — Península Ibérica de noche, borde atmosférico iluminado
       </span>
     </footer>
   </div>
