@@ -18,6 +18,8 @@
       --radius: 14px;
       --limb-blue: #7ec8ff;
       --limb-white: #e8f4ff;
+      --earth-diameter: 236vmax;
+      --earth-radius: 118vmax;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -47,7 +49,7 @@
     .stars {
       position: absolute;
       inset: 0;
-      z-index: 3;
+      z-index: 0;
       background-image:
         radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.9) 0%, transparent 100%),
         radial-gradient(1px 1px at 25% 8%, rgba(255,255,255,0.7) 0%, transparent 100%),
@@ -85,62 +87,53 @@
     }
 
     /*
-     * Tierra real NASA — centro del disco en esquina inferior izquierda.
-     * Radio 120vmax → ~42% del arco visible en pantalla.
+     * Tierra NASA — centro en esquina inferior izquierda.
+     * Universo (estrellas) detrás; disco opaco encima; limb nítido en el borde exacto.
      */
     .earth-disk {
       position: fixed;
       left: 0;
       bottom: 0;
-      width: 240vmax;
-      height: 240vmax;
+      width: var(--earth-diameter);
+      height: var(--earth-diameter);
       transform: translate(-50%, 50%);
       border-radius: 50%;
-      background: url('assets/earth-night.jpg') center center / cover no-repeat;
-      filter: brightness(0.18) contrast(1.25) saturate(0.6);
+      background-color: #000000;
+      background-image: url('assets/earth-night.jpg');
+      background-position: center center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      filter: brightness(0.38) contrast(1.15) saturate(0.85);
       z-index: 1;
     }
 
-    .earth-disk::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      box-shadow: inset 0 0 120px 60px rgba(0, 0, 0, 0.85);
-    }
-
-    /* Fotografía real del limb atmosférico NASA (ISS001-421-24) en el borde */
-    .earth-atmosphere {
+    /* Banda real del limb NASA — recorte duro, sin difuminar ni mezclar */
+    .earth-limb {
       position: fixed;
       left: 0;
       bottom: 0;
-      width: 240vmax;
-      height: 240vmax;
+      width: var(--earth-diameter);
+      height: var(--earth-diameter);
       transform: translate(-50%, 50%);
       border-radius: 50%;
-      background: url('assets/earth-limb-nasa.jpg') center 35% / cover no-repeat;
+      background: url('assets/earth-limb-nasa.jpg') center 50% / 140% 3200% no-repeat;
       -webkit-mask-image: radial-gradient(
         circle,
-        transparent 0,
-        transparent 46%,
-        rgba(0, 0, 0, 0.4) 47.5%,
-        #000 49%,
-        #000 52%,
-        rgba(0, 0, 0, 0.35) 53.5%,
-        transparent 55%
+        transparent calc(50% - 0.42%),
+        #000 calc(50% - 0.38%),
+        #000 calc(50% + 0.38%),
+        transparent calc(50% + 0.42%)
       );
       mask-image: radial-gradient(
         circle,
-        transparent 0,
-        transparent 46%,
-        rgba(0, 0, 0, 0.4) 47.5%,
-        #000 49%,
-        #000 52%,
-        rgba(0, 0, 0, 0.35) 53.5%,
-        transparent 55%
+        transparent calc(50% - 0.42%),
+        #000 calc(50% - 0.38%),
+        #000 calc(50% + 0.38%),
+        transparent calc(50% + 0.42%)
       );
-      mix-blend-mode: screen;
-      opacity: 0.92;
+      filter: contrast(1.25) saturate(1.2);
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
       z-index: 2;
       pointer-events: none;
     }
@@ -386,9 +379,9 @@
 </head>
 <body>
   <div class="space-scene" aria-hidden="true">
-    <div class="earth-disk" role="img" aria-label="Tierra de noche, NASA Black Marble"></div>
-    <div class="earth-atmosphere" role="img" aria-label="Borde atmosférico de la Tierra, NASA ISS001-421-24"></div>
     <div class="stars"></div>
+    <div class="earth-disk" role="img" aria-label="Tierra de noche, NASA Black Marble"></div>
+    <div class="earth-limb" role="img" aria-label="Borde atmosférico de la Tierra, NASA ISS001-421-24"></div>
   </div>
 
   <div class="content">
