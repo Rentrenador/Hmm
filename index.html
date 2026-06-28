@@ -6,195 +6,471 @@
   <title>CurioRutina — Mensajes que mezclan lo familiar con lo nuevo</title>
   <style>
     :root {
-      --bg: #0f1419;
-      --surface: #1a2332;
-      --accent: #5b8def;
-      --accent-soft: #2a3f6b;
-      --text: #e8edf4;
-      --muted: #8b9cb3;
-      --familiar: #3d9a6a;
-      --novel: #c97b3d;
-      --radius: 12px;
+      --space: #000000;
+      --surface: rgba(8, 12, 20, 0.72);
+      --surface-border: rgba(120, 180, 255, 0.12);
+      --accent: #4da3ff;
+      --accent-glow: rgba(77, 163, 255, 0.35);
+      --text: #f0f4fc;
+      --muted: rgba(200, 215, 235, 0.65);
+      --familiar: #5ee4a0;
+      --novel: #ffb86c;
+      --radius: 14px;
+      --limb-blue: #7ec8ff;
+      --limb-white: #e8f4ff;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
+      background: var(--space);
+    }
+
     body {
-      font-family: "Segoe UI", system-ui, sans-serif;
-      background: var(--bg);
+      font-family: "Segoe UI", "Helvetica Neue", system-ui, sans-serif;
       color: var(--text);
       line-height: 1.6;
-      min-height: 100vh;
+      overflow-x: hidden;
     }
+
+    /* --- Space background: stars + Earth limb --- */
+    .space-scene {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse 120% 80% at 50% 110%, rgba(30, 80, 140, 0.08) 0%, transparent 55%),
+        radial-gradient(ellipse 100% 60% at 80% 20%, rgba(20, 40, 80, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse 80% 50% at 10% 30%, rgba(15, 30, 60, 0.1) 0%, transparent 45%),
+        #000000;
+    }
+
+    .stars {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.9) 0%, transparent 100%),
+        radial-gradient(1px 1px at 25% 8%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 40% 22%, rgba(255,255,255,0.85) 0%, transparent 100%),
+        radial-gradient(1px 1px at 55% 5%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 18%, rgba(255,255,255,0.75) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 85% 12%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 15% 35%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 32% 42%, rgba(255,255,255,0.65) 0%, transparent 100%),
+        radial-gradient(1px 1px at 48% 30%, rgba(255,255,255,0.55) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 62% 38%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 78% 45%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 92% 28%, rgba(255,255,255,0.75) 0%, transparent 100%),
+        radial-gradient(1px 1px at 8% 55%, rgba(255,255,255,0.45) 0%, transparent 100%),
+        radial-gradient(1px 1px at 22% 62%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 38% 58%, rgba(255,255,255,0.65) 0%, transparent 100%),
+        radial-gradient(1px 1px at 52% 52%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 68% 60%, rgba(255,255,255,0.55) 0%, transparent 100%),
+        radial-gradient(1px 1px at 82% 55%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 95% 48%, rgba(255,255,255,0.6) 0%, transparent 100%);
+      opacity: 0.85;
+    }
+
+    .stars::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(0.5px 0.5px at 18% 25%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(0.5px 0.5px at 44% 15%, rgba(255,255,255,0.35) 0%, transparent 100%),
+        radial-gradient(0.5px 0.5px at 66% 32%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(0.5px 0.5px at 88% 40%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(0.5px 0.5px at 30% 48%, rgba(255,255,255,0.35) 0%, transparent 100%),
+        radial-gradient(0.5px 0.5px at 58% 44%, rgba(255,255,255,0.3) 0%, transparent 100%);
+    }
+
+    .earth-container {
+      position: absolute;
+      left: 50%;
+      bottom: -68vmin;
+      transform: translateX(-50%);
+      width: 220vmin;
+      height: 220vmin;
+    }
+
+    .earth-body {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background:
+        radial-gradient(ellipse 100% 100% at 50% 42%,
+          #080c10 0%,
+          #030508 30%,
+          #000000 55%,
+          #000000 100%);
+      box-shadow: inset 0 -40vmin 80vmin rgba(0, 0, 0, 0.9);
+    }
+
+    .earth-limb {
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      background: transparent;
+      box-shadow:
+        0 -6px 24px 4px rgba(126, 200, 255, 0.55),
+        0 -12px 60px 12px rgba(80, 160, 255, 0.3),
+        0 -24px 100px 30px rgba(60, 120, 220, 0.15);
+    }
+
+    .earth-limb::before {
+      content: '';
+      position: absolute;
+      left: 5%;
+      right: 5%;
+      top: 8%;
+      height: 3px;
+      border-radius: 50%;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(100, 180, 255, 0.3) 15%,
+        rgba(200, 235, 255, 0.95) 35%,
+        #ffffff 50%,
+        rgba(200, 235, 255, 0.95) 65%,
+        rgba(100, 180, 255, 0.3) 85%,
+        transparent 100%);
+      filter: blur(0.5px);
+      box-shadow:
+        0 0 20px 6px rgba(150, 210, 255, 0.7),
+        0 0 60px 20px rgba(80, 150, 255, 0.35);
+    }
+
+    .earth-limb::after {
+      content: '';
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      top: 7.5%;
+      height: 1px;
+      border-radius: 50%;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.6) 30%,
+        #ffffff 50%,
+        rgba(255, 255, 255, 0.6) 70%,
+        transparent 100%);
+    }
+
+    .atmosphere-haze {
+      position: absolute;
+      left: 50%;
+      bottom: 8vmin;
+      transform: translateX(-50%);
+      width: 140vmin;
+      height: 20vmin;
+      background: radial-gradient(ellipse 100% 100% at 50% 100%,
+        rgba(100, 170, 255, 0.12) 0%,
+        rgba(60, 120, 200, 0.05) 40%,
+        transparent 70%);
+      filter: blur(20px);
+    }
+
+    /* --- Content layer --- */
+    .content {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
     .hero {
-      max-width: 640px;
+      max-width: 680px;
       margin: 0 auto;
-      padding: 3rem 1.5rem 2rem;
+      padding: 4rem 1.5rem 2.5rem;
       text-align: center;
     }
+
     .hero h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.75rem;
+      font-size: 2.4rem;
+      font-weight: 300;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 40px rgba(126, 200, 255, 0.2);
     }
+
     .hero .tagline {
       color: var(--muted);
       font-size: 1.05rem;
-      max-width: 520px;
+      font-weight: 300;
+      max-width: 540px;
       margin: 0 auto 2rem;
+      line-height: 1.75;
     }
-    .hero .hook {
+
+    .hero .tagline strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .hook {
       display: inline-flex;
-      gap: 0.5rem;
+      gap: 0.75rem;
       flex-wrap: wrap;
       justify-content: center;
-      margin-bottom: 2rem;
     }
+
     .pill {
-      font-size: 0.8rem;
-      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      padding: 0.35rem 1rem;
       border-radius: 999px;
-      background: var(--surface);
-      border: 1px solid #2a3548;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--surface-border);
+      letter-spacing: 0.04em;
+      backdrop-filter: blur(8px);
     }
-    .pill.familiar { border-color: var(--familiar); color: #7dd3a8; }
-    .pill.novel { border-color: var(--novel); color: #f0b07a; }
+
+    .pill.familiar {
+      border-color: rgba(94, 228, 160, 0.35);
+      color: var(--familiar);
+      box-shadow: 0 0 20px rgba(94, 228, 160, 0.08);
+    }
+
+    .pill.novel {
+      border-color: rgba(255, 184, 108, 0.35);
+      color: var(--novel);
+      box-shadow: 0 0 20px rgba(255, 184, 108, 0.08);
+    }
+
     main {
-      max-width: 480px;
+      max-width: 500px;
       margin: 0 auto;
-      padding: 0 1.5rem 3rem;
+      padding: 0 1.5rem 2rem;
+      flex: 1;
     }
+
     .card {
       background: var(--surface);
       border-radius: var(--radius);
-      padding: 1.5rem;
-      border: 1px solid #2a3548;
+      padding: 1.75rem;
+      border: 1px solid var(--surface-border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
     }
+
     .card h2 {
-      font-size: 1.1rem;
-      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
     }
+
+    .card-desc {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+      font-weight: 300;
+    }
+
     label {
       display: block;
-      font-size: 0.85rem;
+      font-size: 0.75rem;
       color: var(--muted);
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
+
     input, textarea {
       width: 100%;
-      padding: 0.65rem 0.85rem;
+      padding: 0.75rem 1rem;
       border-radius: 8px;
-      border: 1px solid #2a3548;
-      background: var(--bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.45);
       color: var(--text);
       font: inherit;
-      margin-bottom: 1rem;
+      margin-bottom: 1.1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
-    textarea { resize: vertical; min-height: 80px; }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: rgba(77, 163, 255, 0.5);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    textarea { resize: vertical; min-height: 88px; }
+
     button {
       width: 100%;
-      padding: 0.75rem;
+      padding: 0.85rem;
       border: none;
       border-radius: 8px;
-      background: var(--accent);
+      background: linear-gradient(180deg, #5eb0ff 0%, #3d8ee6 100%);
       color: #fff;
       font: inherit;
-      font-weight: 600;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 0.85rem;
       cursor: pointer;
+      transition: filter 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 24px rgba(77, 163, 255, 0.25);
     }
-    button:hover { filter: brightness(1.1); }
+
+    button:hover {
+      filter: brightness(1.12);
+      box-shadow: 0 6px 32px rgba(77, 163, 255, 0.35);
+    }
+
     button.secondary {
       background: transparent;
-      border: 1px solid var(--accent-soft);
+      border: 1px solid rgba(77, 163, 255, 0.35);
       color: var(--accent);
+      box-shadow: none;
       margin-top: 0.75rem;
     }
+
+    button.secondary:hover {
+      background: rgba(77, 163, 255, 0.08);
+      box-shadow: 0 0 20px rgba(77, 163, 255, 0.15);
+    }
+
     .hidden { display: none !important; }
+
     .ack {
       margin-top: 1rem;
-      padding: 0.75rem;
+      padding: 0.85rem 1rem;
       border-radius: 8px;
-      background: #1a2e24;
-      border: 1px solid var(--familiar);
+      background: rgba(94, 228, 160, 0.06);
+      border: 1px solid rgba(94, 228, 160, 0.25);
       font-size: 0.9rem;
+      font-weight: 300;
     }
+
     .demo-section { margin-top: 1.5rem; }
+
     .message-preview {
       margin-top: 1rem;
-      padding: 1rem;
+      padding: 1.1rem;
       border-radius: 8px;
-      background: var(--bg);
-      border: 1px solid #2a3548;
-      font-size: 0.9rem;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.88rem;
       white-space: pre-wrap;
       word-break: break-word;
+      font-weight: 300;
     }
+
     .message-preview .section-label {
-      font-size: 0.75rem;
+      font-size: 0.68rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.12em;
       margin-bottom: 0.5rem;
+      font-weight: 500;
     }
-    .message-preview .familiar-label { color: #7dd3a8; }
-    .message-preview .novel-label { color: #f0b07a; }
+
+    .message-preview .familiar-label { color: var(--familiar); }
+    .message-preview .novel-label { color: var(--novel); }
+
+    .message-preview a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .message-preview a:hover { text-decoration: underline; }
+
     .send-log {
       margin-top: 0.75rem;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--muted);
       max-height: 120px;
       overflow-y: auto;
+      font-family: "Cascadia Code", "Consolas", monospace;
     }
+
     footer {
+      position: relative;
+      z-index: 1;
       text-align: center;
-      padding: 2rem;
-      color: var(--muted);
-      font-size: 0.8rem;
+      padding: 2.5rem 1.5rem 3rem;
+      color: rgba(200, 215, 235, 0.35);
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 600px) {
+      .hero h1 {
+        font-size: 1.6rem;
+        letter-spacing: 0.2em;
+      }
+      .earth-container {
+        width: 280vmin;
+        height: 280vmin;
+        bottom: -75vmin;
+      }
     }
   </style>
 </head>
 <body>
-  <header class="hero">
-    <h1>CurioRutina</h1>
-    <p class="tagline">
-      Recibe mensajes periódicos que mezclan <strong>lo que ya conoces</strong> — tu actividad del día a día —
-      con <strong>información nueva</strong> diseñada para captar tu atención e invitarte a investigar.
-    </p>
-    <div class="hook">
-      <span class="pill familiar">Parte familiar → tu rutina</span>
-      <span class="pill novel">Parte nueva → investiga</span>
+  <div class="space-scene" aria-hidden="true">
+    <div class="stars"></div>
+    <div class="earth-container">
+      <div class="earth-body"></div>
+      <div class="earth-limb"></div>
     </div>
-  </header>
+    <div class="atmosphere-haze"></div>
+  </div>
 
-  <main>
-    <section id="signup-section" class="card">
-      <h2>Empieza aquí</h2>
-      <p style="font-size:0.9rem;color:var(--muted);margin-bottom:1rem;">
-        Déjanos cómo contactarte y qué haces cada día. Generaremos mensajes personalizados para ti.
+  <div class="content">
+    <header class="hero">
+      <h1>CurioRutina</h1>
+      <p class="tagline">
+        Recibe mensajes periódicos que mezclan <strong>lo que ya conoces</strong> — tu actividad del día a día —
+        con <strong>información nueva</strong> diseñada para captar tu atención e invitarte a investigar.
       </p>
-      <form id="signup-form">
-        <label for="contact">Medio de contacto (email)</label>
-        <input type="email" id="contact" name="contact" placeholder="tu@email.com" required>
+      <div class="hook">
+        <span class="pill familiar">Parte familiar → tu rutina</span>
+        <span class="pill novel">Parte nueva → investiga</span>
+      </div>
+    </header>
 
-        <label for="activity">Algo que haces en tu día a día</label>
-        <textarea id="activity" name="activity" placeholder="Ej.: impartir clases de matemáticas" required></textarea>
+    <main>
+      <section id="signup-section" class="card">
+        <h2>Empieza aquí</h2>
+        <p class="card-desc">
+          Déjanos cómo contactarte y qué haces cada día. Generaremos mensajes personalizados para ti.
+        </p>
+        <form id="signup-form">
+          <label for="contact">Medio de contacto (email)</label>
+          <input type="email" id="contact" name="contact" placeholder="tu@email.com" required>
 
-        <button type="submit">Inscribirme y recibir mensajes</button>
-      </form>
-      <div id="ack" class="ack hidden"></div>
-    </section>
+          <label for="activity">Algo que haces en tu día a día</label>
+          <textarea id="activity" name="activity" placeholder="Ej.: impartir clases de matemáticas" required></textarea>
 
-    <section id="demo-section" class="card demo-section hidden">
-      <h2>Tu mensaje personalizado</h2>
-      <p style="font-size:0.9rem;color:var(--muted);margin-bottom:1rem;">
-        Vista previa del mensaje que recibirías. La parte familiar conecta con tu rutina; la parte nueva te invita a investigar.
-      </p>
-      <button type="button" id="generate-btn">Generar mensaje ahora</button>
-      <button type="button" id="simulate-btn" class="secondary">Simular envío periódico</button>
-      <div id="message-preview" class="message-preview hidden"></div>
-      <div id="send-log" class="send-log"></div>
-    </section>
-  </main>
+          <button type="submit">Inscribirme y recibir mensajes</button>
+        </form>
+        <div id="ack" class="ack hidden"></div>
+      </section>
 
-  <footer>CurioRutina — familiar + nuevo, en tu bandeja de entrada</footer>
+      <section id="demo-section" class="card demo-section hidden">
+        <h2>Tu mensaje personalizado</h2>
+        <p class="card-desc">
+          Vista previa del mensaje que recibirías. La parte familiar conecta con tu rutina; la parte nueva te invita a investigar.
+        </p>
+        <button type="button" id="generate-btn">Generar mensaje ahora</button>
+        <button type="button" id="simulate-btn" class="secondary">Simular envío periódico</button>
+        <div id="message-preview" class="message-preview hidden"></div>
+        <div id="send-log" class="send-log"></div>
+      </section>
+    </main>
+
+    <footer>CurioRutina — familiar + nuevo, en tu bandeja de entrada</footer>
+  </div>
 
   <script src="js/message-generator.js"></script>
   <script src="js/app.js"></script>
